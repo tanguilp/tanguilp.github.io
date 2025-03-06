@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="use-css.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>La balise use et CSS</title>
+
+<defs>
+	<g id="smiley">
+		<circle id="tete" cx="0" cy="0" r="30"/>
+		<ellipse cx="0" cy="14" rx="15" ry="8"/>
+		<circle class="oeil" cx="-10" cy="-14" r="1"/>
+		<circle class="oeil" cx="10" cy="-14" r="1"/>
+		<circle id="nez" cx="0" cy="0" r="3"/>
+	</g>
+</defs>
+
+<use xlink:href="#smiley" transform="translate(100,150) scale(2)"/>
+<use xlink:href="#smiley" transform="translate(120,150) scale(2)"/>
+<use xlink:href="#smiley" transform="translate(140,150) scale(2)"/>
+<use xlink:href="#smiley" transform="translate(160,150) scale(2)"/>
+<use xlink:href="#smiley" transform="translate(180,150) scale(2)"/>
+<use xlink:href="#smiley" transform="translate(200,150) scale(2)"/>
+
+
+</svg>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="maskContentUnits.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>Masque s’ajustant à la taille de l’objet sur lequel il est appliqué</title>
+
+<defs>
+	<radialGradient id="degrade_du_masque">
+		<stop offset="0%" id="stop1"/>
+		<stop offset="65%" id="stop2"/>
+		<stop offset="100%" id="stop3"/>
+	</radialGradient>
+
+	<!-- définition de la découpe -->
+	<mask id="masque" maskContentUnits="objectBoundingBox">
+		<ellipse cx="0.5" cy="0.5" rx="0.5" ry="0.5"/>
+	</mask>
+</defs>
+
+<image xlink:href="window-horizontal.jpg" x="10" y="10" width="180" height="120"/>
+
+<image xlink:href="window-vertical.jpg" x="210" y="10" width="180" height="270"/>
+
+</svg>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="feTurbulence.css" charset="utf-8"?>
+
+<svg version="1.1" baseProfile="full" width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>feTurbulence : les deux types de turbulence</title>
+
+<defs>
+	<filter id="fractalNoise1">
+		<feTurbulence type="fractalNoise"
+			baseFrequency="0.05" numOctaves="1"/>
+
+	</filter>
+
+	<filter id="fractalNoise2">
+		<feTurbulence type="fractalNoise"
+			baseFrequency="0.05" numOctaves="6"/>
+
+	</filter>
+
+	<filter id="fractalNoise3">
+		<feTurbulence type="fractalNoise"
+			baseFrequency="0.05 0.15" numOctaves="2"/>
+
+	</filter>
+
+	<filter id="turbulence1">
+		<feTurbulence type="turbulence"
+			baseFrequency="0.05" numOctaves="2"/>
+
+	</filter>
+
+	<filter id="turbulence2">
+		<feTurbulence type="turbulence"
+			baseFrequency="0.2" numOctaves="4"/>
+
+	</filter>
+
+	<filter id="turbulence3">
+		<feTurbulence type="turbulence"
+			baseFrequency="0.15 0.015" numOctaves="2"/>
+
+	</filter>
+	
+	<rect id="rect" width="80" height="80"/>
+</defs>
+
+<use id="f1" xlink:href="#rect" transform="translate(25,35)"/>
+
+<use id="f2" xlink:href="#rect" transform="translate(155,35)"/>
+
+<use id="f3" xlink:href="#rect" transform="translate(285,35)"/>
+
+<use id="f4" xlink:href="#rect" transform="translate(25,185)"/>
+
+<use id="f5" xlink:href="#rect" transform="translate(155,185)"/>
+
+<use id="f6" xlink:href="#rect" transform="translate(285,185)"/>
+
+</svg>

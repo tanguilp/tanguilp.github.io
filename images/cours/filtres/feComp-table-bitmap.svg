@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="feComp-table-bitmap.css" charset="utf-8"?>
+
+<svg version="1.1" baseProfile="full" width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>table avec feComponentTransfer sur une image raster</title>
+
+<defs>
+	<filter id="table">
+		<feComponentTransfer>
+			<feFuncR type="table" tableValues="0.5 0 0.9 0.6 1"/>
+			<feFuncG type="table" tableValues="0.7 0.2 0.6 0.9 1 1 1"/>
+			<feFuncB type="table" tableValues="0 0.8 1 0.5"/>
+		</feComponentTransfer>
+	</filter>
+</defs>
+
+<image x="5" y="5" width="390" height="290"
+	xlink:href="Poospiza_nigrorufa_siete_vestidos.jpg" id="filt"/>
+
+</svg>
