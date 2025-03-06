@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/css" href="spline.css" charset="utf-8"?>
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<script type="text/ecmascript" xlink:href="../../../inc/smil.user.js"/>
+
+<title>Une animation avec interpolation non linéaire</title>
+
+<rect x="30" y="130" width="40" height="40" id="rect">
+	<animate attributeName="x" attributeType="XML"
+	to="370"
+	begin="rect.click" repeatCount="indefinite"
+	dur="7s"
+	calcMode="spline" keySplines="0.27 0.8 0.76 0.15"/>
+</rect>
+
+</svg>

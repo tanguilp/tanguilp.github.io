@@ -1,0 +1,72 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<title>Élément de contrôle XForms : sélection dynamique</title>
+		<xf:model id="modele">
+			<xf:instance id="jours">
+				<jours xmlns="">
+					<jour nom="Lendi">
+						<moment>le matin</moment>
+						<moment>après manger</moment>
+						<moment>avant le dodo</moment>
+					</jour>
+					<jour nom="Mordi">
+						<moment>avant midi</moment>
+						<moment>après midi</moment>
+						<moment>avant minuit</moment>
+					</jour>
+					<jour nom="Credi">
+						<moment>le jour</moment>
+						<moment>la nuit</moment>
+					</jour>
+					<jour nom="joudi">
+						<moment>pendant les dessins animés</moment>
+						<moment>pendant télé-matin</moment>
+						<moment>pendant motus</moment>
+						<moment>pendant le JT</moment>
+						<moment>pendant la météo</moment>
+					</jour>
+					<jour nom="Dredi">
+						<moment>jamais</moment>
+					</jour>
+					<jour nom="Sadi">
+						<moment>au bon moment</moment>
+						<moment>au mauvais moment</moment>
+					</jour>
+				</jours>
+			</xf:instance>
+
+			<xf:instance id="resultat">
+				<data xmlns="">
+					<jour/>
+					<moment/>
+				</data>
+			</xf:instance>
+		</xf:model>
+	</head>
+	<body>
+		<h1>Élément de contrôle XForms : sélection dynamique</h1>
+		<p>
+			<xf:select1 ref="instance('resultat')/jour">
+				<xf:label>Jour d'arrivée au Groland : </xf:label>
+				<xf:itemset nodeset="instance('jours')/jour">
+					<xf:label ref="@nom"/>
+					<xf:value ref="@nom"/>
+				</xf:itemset>
+			</xf:select1>
+		</p>		<p>
+			<xf:select1 ref="instance('resultat')/moment">
+				<xf:label>Vous arriverez : </xf:label>
+				<xf:itemset nodeset="instance('jours')/jour[@nom = instance('resultat')/jour]/moment">
+					<xf:label ref="./text()"/>
+					<xf:value ref="."/>
+				</xf:itemset>
+			</xf:select1>
+		</p>
+		<p>
+			<xf:output value="concat(instance('resultat')/jour, ' ', instance('resultat')/moment)">
+				<xf:label>Arrivée le </xf:label>
+			</xf:output>
+		</p>
+	</body>
+</html>

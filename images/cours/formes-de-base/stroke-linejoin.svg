@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="stroke-linejoin.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>Illustration des différentes valeurs de la propriété CSS stroke-linejoin</title>
+
+<polyline id="poly1" points="60,200 100,150 140,200"/>
+<text x="100" y="100">miter</text>
+
+<polyline id="poly2" points="160,200 200,150 240,200"/>
+<text x="200" y="100">round</text>
+
+<polyline id="poly3" points="260,200 300,150 340,200"/>
+<text x="300" y="100">bevel</text>
+
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.0" viewBox="0 0 400 400" width="400" height="400">
+	<title>Events</title>
+
+	<defs>
+		<marker id="enda" markerWidth="12" markerHeight="8" refX="0" refY="4" orient="auto">
+			<polyline points="0,0 12,4 0,8" fill="green"/>
+		</marker>
+		<marker id="endb" markerWidth="12" markerHeight="8" refX="0" refY="4" orient="auto">
+			<polyline points="0,0 12,4 0,8" fill="orange"/>
+		</marker>
+	</defs>
+
+	<text x="200" y="40" text-anchor="middle" font-size="24">&lt;svg/&gt;</text>
+	<line x1="200" y1="40" x2="200" y2="128" stroke="black"/>
+	<line x1="44" y1="128" x2="334" y2="128" stroke="black"/>
+	<line x1="44" y1="128" x2="44" y2="200" stroke="black"/>
+	<text x="44" y="220" text-anchor="middle" font-size="24">&lt;title/&gt;</text>
+	<line x1="170" y1="128" x2="170" y2="200" stroke="black"/>
+	<text x="170" y="220" text-anchor="middle" font-size="24">&lt;script/&gt;</text>
+	<line x1="334" y1="128" x2="334" y2="200" stroke="black"/>
+	<text x="334" y="220" text-anchor="middle" font-size="24">&lt;g/&gt;</text>
+	<line x1="334" y1="232" x2="334" y2="348" stroke="black"/>
+	<text x="334" y="364" text-anchor="middle" font-size="24" fill="red">&lt;rect/&gt;</text>
+
+	<line x1="220" y1="50" x2="280" y2="160" stroke="green" stroke-width="3" style="marker-end:url(#enda)"/>
+	<line x1="296" y1="220" x2="296" y2="300" stroke="green" stroke-width="3" stroke-dasharray="3,6" style="marker-end:url(#enda)"/>
+	<text x="220" y="300" text-anchor="middle" font-size="18" fill="green">(1) Capture</text>
+	<text x="334" y="400" text-anchor="middle" font-size="18" fill="red">(2) Cible</text>
+	<circle cx="354" cy="332" r="11" fill="lightblue"/>
+	<line x1="372" y1="336" x2="372" y2="256" stroke="orange" stroke-width="3" stroke-dasharray="3,6" style="marker-end:url(#endb)"/>
+	<circle cx="298" cy="204" r="11" fill="lightblue"/>
+	<line x1="360" y1="192" x2="272" y2="60" stroke="orange" stroke-width="3" stroke-dasharray="3,6" style="marker-end:url(#endb)"/>
+	<text x="300" y="20" text-anchor="middle" font-size="18" fill="orange">(3) Bouillonnement</text>
+
+	<line x1="276" y1="210" x2="316" y2="250" stroke="red" stroke-width="6" />
+	<line x1="316" y1="210" x2="276" y2="250" stroke="red" stroke-width="6" />
+</svg>

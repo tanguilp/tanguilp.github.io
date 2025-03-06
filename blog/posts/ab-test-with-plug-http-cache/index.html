@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html><head lang="en">
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>A/B testing and HTTP caching with `plug_http_cache` - Tangui&#39;s blog</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="In the previous article, we discussed how to setup
+plug_http_cache to cache Phoenix&rsquo;s response.
+In this article, we&rsquo;ll take a look at the specific case of caching when doing A/B testing.
+A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and
+comparing the users&rsquo; behaviour to determine which version performs better.
+Usually, a user is randomly assigned a group (A or B) when first visiting the site implementing
+A/B testing and sticks to this group. The value of the group is stored in a persistent cookie." />
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content="https://svground.fr/blog/posts/ab-test-with-plug-http-cache/">
+  <meta property="og:site_name" content="Tangui&#39;s blog">
+  <meta property="og:title" content="A/B testing and HTTP caching with `plug_http_cache`">
+  <meta property="og:description" content="In the previous article, we discussed how to setup plug_http_cache to cache Phoenix’s response.
+In this article, we’ll take a look at the specific case of caching when doing A/B testing.
+A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and comparing the users’ behaviour to determine which version performs better.
+Usually, a user is randomly assigned a group (A or B) when first visiting the site implementing A/B testing and sticks to this group. The value of the group is stored in a persistent cookie.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2024-08-13T12:34:32+03:00">
+    <meta property="article:modified_time" content="2024-08-13T12:34:32+03:00">
+    <meta property="article:tag" content="HTTP Caching">
+    <meta property="article:tag" content="Elixir">
+    <meta property="article:tag" content="A/B Testing">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="A/B testing and HTTP caching with `plug_http_cache`">
+  <meta name="twitter:description" content="In the previous article, we discussed how to setup plug_http_cache to cache Phoenix’s response.
+In this article, we’ll take a look at the specific case of caching when doing A/B testing.
+A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and comparing the users’ behaviour to determine which version performs better.
+Usually, a user is randomly assigned a group (A or B) when first visiting the site implementing A/B testing and sticks to this group. The value of the group is stored in a persistent cookie.">
+<script src="../../js/feather.min.js"></script>
+	
+	
+        <link href="../../css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="../../css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
+
+	
+	
+
+	
+	
+
+	
+		
+		
+		<link rel="stylesheet" type="text/css" href="../../css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
+		
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="../../../index.html">Tangui&#39;s blog</a>
+	</div>
+	<nav>
+		
+		<a href="../../index.html">Home</a>
+		
+		<a href="../../posts.html">All posts</a>
+		
+		<a href="../../about.html">About</a>
+		
+		<a href="../../tags.html">Tags</a>
+		
+		
+	</nav>
+</header>
+
+<main>
+	<article>
+		<div class="title">
+			<h1 class="title">A/B testing and HTTP caching with `plug_http_cache`</h1>
+			<div class="meta">Posted on Aug 13, 2024</div>
+		</div>
+		
+
+		
+
+		<section class="body">
+			<p>In the previous <a href="../introducing-http-cache/index.html">article</a>, we discussed how to setup
+<a href="https://hex.pm/packages/plug_http_cache"><code>plug_http_cache</code></a> to cache Phoenix&rsquo;s response.</p>
+<p>In this article, we&rsquo;ll take a look at the specific case of caching when doing A/B testing.</p>
+<p>A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and
+comparing the users&rsquo; behaviour to determine which version performs better.</p>
+<p>Usually, a user is randomly assigned a group (A or B) when first visiting the site implementing
+A/B testing and sticks to this group. The value of the group is stored in a persistent cookie.</p>
+<p>We&rsquo;ll try to implement caching A/B testing in
+<a href="https://github.com/tanguilp/plug_http_cache_demo">plug_http_cache_demo</a>. By default, the result
+of the Fibonacci calculation is shown in Arabic numerals:</p>
+<p><img src="../../images/arab_numerals.png#center" alt="Result using Arab numerals"></p>
+<p>How about Roman numerals? Time to check if it&rsquo;s more convenient to users:</p>
+<p><img src="../../images/roman_numerals.png#center" alt="Result using Roman numerals"></p>
+<p>In both case, we have the same URL: <code>http://localhost:4000/fibo?number=19</code>.</p>
+<p>We will not implement the actual measurements of the users&rsquo; behaviour. We are only interested in
+caching the page. Or pages?</p>
+<h2 id="caching-different-versions-of-a-page">Caching different versions of a page</h2>
+<p>To find a cached response from a request, HTTP caches build a cache key from the request. <code>http_cache</code>,
+the library used by <code>plug_http_cache</code>, takes into account the URL, the method, the body (in case, for instance,
+of caching POST search requests) and a bucket (to differentiate private caches - not used by
+<code>plug_http_cache</code>):</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-erlang" data-lang="erlang"><span style="display:flex;"><span><span style="color:#a6e22e">request_key</span>({Method, Url, _Headers, Body}, Opts) <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>    MethodDigest <span style="color:#f92672">=</span> crypto:hash(sha256, Method),
+</span></span><span style="display:flex;"><span>    UrlDigest <span style="color:#f92672">=</span> url_digest(Url, Opts),
+</span></span><span style="display:flex;"><span>    BodyDigest <span style="color:#f92672">=</span> crypto:hash(sha256, iolist_to_binary(Body)),
+</span></span><span style="display:flex;"><span>    BucketDigest <span style="color:#f92672">=</span> crypto:hash(sha256, erlang:term_to_binary(map_get(bucket, Opts))),
+</span></span><span style="display:flex;"><span>    crypto:hash(sha256,
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">&lt;&lt;</span>MethodDigest<span style="color:#f92672">/</span>binary, UrlDigest<span style="color:#f92672">/</span>binary, BodyDigest<span style="color:#f92672">/</span>binary, BucketDigest<span style="color:#f92672">/</span>binary<span style="color:#f92672">&gt;&gt;</span>).
+</span></span></code></pre></div><p>Other caches use slightly different parameters. Varnish only takes into account the URL and the host
+(or IP):</p>
+<pre tabindex="0"><code class="language-vcl" data-lang="vcl">sub vcl_hash {
+    hash_data(req.url);
+    if (req.http.host) {
+        hash_data(req.http.host);
+    } else {
+        hash_data(server.ip);
+    }
+    return (lookup);
+}
+</code></pre><p>No trace of cookie here, but the A/B test group is stored in the cookie! If we enable HTTP caching
+here, only <em>one of the two versions</em> will be cached, and served, to everyone. The cached page will
+simply be the page returned upon the first visit, and will be served until the cached version expires.</p>
+<p>Common solutions to this problem include manually altering the cache key,
+<a href="https://www.eventbrite.com/engineering/varnish-b-testing-play-nice/">changing the URL</a> to reflect
+the A/B testing group as a query parameter, or somehow
+<a href="https://developers.cloudflare.com/workers/examples/ab-testing/">redirecting to different URLs</a>
+depending on it.</p>
+<p>Changing the cache key is not possible with <code>plug_http_cache</code>, and other usually proposed solutions
+are cumbersome and not elegant.</p>
+<p>So we&rsquo;re back to the question: how to store different versions of a same page?</p>
+<p>The response is in the <a href="https://hexdocs.pm/http_cache/readme.html#header-normalisation">documentation</a>,
+to put it politely.</p>
+<p>This mechanism has existed for decades and is used for the <code>accept-*</code> headers. HTTP caches actually
+<em>can</em> and <em>will</em> store different versions of a page as long as the
+<a href="https://www.fastly.com/blog/best-practices-using-vary-header/"><code>vary</code> header</a> is set. Follow the
+link for a refresh about this header if needed.</p>
+<p>Using it looks like a good option for our use-case. Let&rsquo;s see how to implement it.</p>
+<h2 id="implementation-with-plug_http_cache">Implementation with <code>plug_http_cache</code></h2>
+<p>Let&rsquo;s sum up what needs to be done to implement it in Phoenix with <code>plug_http_cache</code>:</p>
+<ol>
+<li>first check an A/B test value exists in the session, and create it otherwise</li>
+<li>then we need to set an <code>ab-test</code> header with the A/B testing group</li>
+<li>somewhere in the backend, we need to check the A/B testing group to return different pages</li>
+<li>finally, we need to set the <code>vary</code> header accordingly, otherwise caches will not know the page
+changes depending on this header&rsquo;s value</li>
+</ol>
+<p>We&rsquo;ll use the <code>&quot;a&quot;</code> and <code>&quot;b&quot;</code> string values for the 2 groups, but it could be another value
+(it&rsquo;s often 0 and 1).</p>
+<p>Plug is an ideal mechanism to set the cookie and header. Let&rsquo;s start with the cookie:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.Plug.SetABTestCookie</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@behaviour</span> <span style="color:#a6e22e">Plug</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@impl</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> init(opts), <span style="color:#e6db74">do</span>: opts
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@impl</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> call(conn, _opts) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>get_session(conn, <span style="color:#e6db74">&#34;ab-test&#34;</span>) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;a&#34;</span> <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>        conn
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;b&#34;</span> <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>        conn
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      <span style="color:#66d9ef">nil</span> <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>put_session(conn, <span style="color:#e6db74">&#34;ab-test&#34;</span>, rand_a_or_b())
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> rand_a_or_b() <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">if</span> <span style="color:#e6db74">:rand</span><span style="color:#f92672">.</span>uniform() <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">0.5</span>, <span style="color:#e6db74">do</span>: <span style="color:#e6db74">&#34;a&#34;</span>, <span style="color:#e6db74">else</span>: <span style="color:#e6db74">&#34;b&#34;</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p>If the cookie doesn&rsquo;t exist, we set &ldquo;a&rdquo; or &ldquo;b&rdquo; with a 50/50 probability.</p>
+<p>The A/B testing group being set in the session, we can then set the header:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.Plug.SetABTestHeader</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@behaviour</span> <span style="color:#a6e22e">Plug</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@impl</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> init(opts), <span style="color:#e6db74">do</span>: opts
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@impl</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> call(conn, _opts) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    ab_test <span style="color:#f92672">=</span> <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>get_session(conn, <span style="color:#e6db74">&#34;ab-test&#34;</span>) <span style="color:#f92672">||</span> <span style="color:#66d9ef">raise</span> <span style="color:#e6db74">&#34;Missing ab test cookie value&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>put_req_header(conn, <span style="color:#e6db74">&#34;ab-test&#34;</span>, ab_test)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p>We can now add them to our pipeline in the router in the right order:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>  pipeline <span style="color:#e6db74">:browser</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e"># ...</span>
+</span></span><span style="display:flex;"><span>    plug <span style="color:#a6e22e">Plug.SetABTestCookie</span>
+</span></span><span style="display:flex;"><span>    plug <span style="color:#a6e22e">Plug.SetABTestHeader</span>
+</span></span><span style="display:flex;"><span>    plug <span style="color:#a6e22e">PlugHTTPCache</span>, <span style="color:#a6e22e">Application</span><span style="color:#f92672">.</span>compile_env(<span style="color:#e6db74">:plug_http_cache_demo</span>, <span style="color:#e6db74">:plug_http_cache_opts</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p>Since <code>plug_http_cache</code> will read the <code>ab-test</code> request header to pick the right version, it&rsquo;s
+important to set this header before the <code>PlugHTTPCache</code> plug.</p>
+<p>It&rsquo;s time to return different versions of the page. We&rsquo;ll not discuss what is the best way to
+handle A/B tests in Phoenix, as the author has no clue what the best practices are :)</p>
+<p>Let&rsquo;s just read the session and return the numbers in Roman numerals if the A/B testing group is
+&ldquo;b&rdquo;:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.FiboController</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">use</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb</span>, <span style="color:#e6db74">:controller</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">alias</span> <span style="color:#a6e22e">PlugHTTPCacheDemo.RomanNumeral</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> index(conn, %{<span style="color:#e6db74">&#34;number&#34;</span> <span style="color:#f92672">=&gt;</span> number_str}) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    {number, _} <span style="color:#f92672">=</span> <span style="color:#a6e22e">Integer</span><span style="color:#f92672">.</span>parse(number_str)
+</span></span><span style="display:flex;"><span>    result <span style="color:#f92672">=</span> <span style="color:#a6e22e">PlugHTTPCacheDemo</span><span style="color:#f92672">.</span>fib(number)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    ab_test <span style="color:#f92672">=</span> <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>get_session(conn, <span style="color:#e6db74">&#34;ab-test&#34;</span>)
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    conn
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> set_alternate_keys(result)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>prepend_resp_headers([{<span style="color:#e6db74">&#34;vary&#34;</span>, <span style="color:#e6db74">&#34;ab-test&#34;</span>}])
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> render(<span style="color:#e6db74">&#34;index.html&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">number</span>: format_abtest(number, ab_test),
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">result</span>: format_abtest(result, ab_test)
+</span></span><span style="display:flex;"><span>    )
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#75715e">#...</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> format_abtest(number, <span style="color:#e6db74">&#34;a&#34;</span>), <span style="color:#e6db74">do</span>: number
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> format_abtest(number, <span style="color:#e6db74">&#34;b&#34;</span>), <span style="color:#e6db74">do</span>: <span style="color:#a6e22e">RomanNumeral</span><span style="color:#f92672">.</span>convert(number)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p>If we open 2 private windows, and with a bit of luck, we can now see the 2 versions of the page:</p>
+<p><img src="../../images/variants_next_to_each_other.png#center" alt="Variants next to each other"></p>
+<p>Which version do you prefer?</p>
+<p>Let&rsquo;s check in the browser they&rsquo;re correctly cached:</p>
+<p><img src="../../images/browser_cached_request.png#center" alt="Cached response as seen in browser debug tool"></p>
+<ul>
+<li>The <code>age</code> header shows a cached response was returned</li>
+<li>The <code>cache-control</code> header is correctly set</li>
+<li>The <code>vary</code> headers shows that the response varies on <code>ab-test</code> and <code>accept-encoding</code>
+(<code>plug_http_cache</code> automatically compresses text responses, which is why the responses
+also vary on <code>accept-encoding</code>)</li>
+</ul>
+<p>All good!</p>
+<p>We can actually go deeper and take a look at the <code>http_cache_store_memory_table_object</code> table
+containing the cached responses (courtesy of the <code>http_cache_store_memory</code> store used here) in the
+observer:</p>
+<p><img src="../../images/cached_response_in_observer.png#center" alt="Cachedresponses in observer"></p>
+<p>As you can see, the value of the request header (&ldquo;a&rdquo; or &ldquo;b&rdquo; - <code>97</code> or <code>98</code> in the second column) has
+to be saved in the cached response metadata so that we can pick the right answer.</p>
+<p>It also looks like the primary keys (1st column) are the same, but it&rsquo;s not the case and can&rsquo;t be
+in an <code>ordered_set</code> ETS table:</p>
+<ul>
+<li>for &ldquo;a&rdquo; it&rsquo;s <code>{&lt;&lt;87,34,228,152,15,9,33,144,234,100,243,187,249,73,166,247,238,97,112,73,156, 155,45,194,141,104,145,252,131,185,12,18&gt;&gt;, &lt;&lt;144,142,233,211,151,219,19,41,13,41,90,248,164,40,49,123,56,20,206,50,57, 14,52,175,213,21,79,234,235,5,244,184&gt;&gt;}</code></li>
+<li>for &ldquo;b&rdquo; it&rsquo;s <code>{&lt;&lt;87,34,228,152,15,9,33,144,234,100,243,187,249,73,166,247,238,97,112,73,156, 155,45,194,141,104,145,252,131,185,12,18&gt;&gt;, &lt;&lt;85,91,180,57,41,57,7,165,10,95,231,160,8,168,82,141,240,47,72,161,12,20, 103,123,41,231,183,116,97,228,59,127&gt;&gt;}</code></li>
+</ul>
+<p>The first element of the tuple is the request key, and are equal. The second element
+is the part that actually takes the varying headers into account.</p>
+<p>Storing the cached responses in this manner allows finding all the variants of a page very
+quickly thanks to an <code>ordered_set</code>
+<a href="https://www.erlang.org/doc/apps/stdlib/ets.html#module-table-traversal">trick</a>. Indeed,
+<code>ordered_set</code> tables are implemented as a tree, and matching on the first element of tuple is
+thus extremely efficient as data is collocated.</p>
+<p>Looks like we&rsquo;re done, right?</p>
+<h2 id="something-might-be-very-wrong">Something might be very wrong</h2>
+<p>If your Phoenix server is serving users directly, then there&rsquo;s no problem. However, what happens if
+you have intermediate shared caches (CDN&hellip;) in-between?</p>
+<p>In this case, the shared cache will see that the response varies on the <code>ab-test</code> header, will
+look at the request to fetch the value of this header, which is missing. Then it will store
+the response, one of the two so either with Arab numerals or Roman numerals, and return it to all
+subsequent requests that don&rsquo;t have an <code>ab-test</code> header, that is to all requests.</p>
+<p><img src="../../images/CDN_cache_undefined_abtest.svg#center" alt="CDN caches response with undefined ab-test header"></p>
+<p>Congratulations, you have accidentaly cached one version of the page for all you users, until the
+cached page expires!</p>
+<p>This happens because the <code>ab-test</code> header is set by your Phoenix instance, and not
+at the shared cache level. To fix it, either:</p>
+<ul>
+<li>prevent caching by your CDN, but setting the <code>cache-control</code> header back to <code>private, no-cache, no-store</code>,
+but you&rsquo;ll no longer benefit from your CDN; or</li>
+<li>set the cookie and the header at the CDN</li>
+</ul>
+<p><img src="../../images/CDN_caches_response_with_correct_abtest_header.svg#center" alt="CDN caches response with &ldquo;a&rdquo; or &ldquo;b&rdquo; ab-test header"></p>
+<p>The code of the implementation is available on the <code>ab-test</code> branch of the
+<a href="https://github.com/tanguilp/plug_http_cache_demo">plug_http_cache_demo</a>.</p>
+<p>We&rsquo;ll soon continue this series of articles with a very exciting thing: publicly caching private
+pages. Stay tuned!</p>
+
+		</section>
+
+		<div class="post-tags">
+			
+			
+			<nav class="nav tags">
+				<ul class="tags">
+					
+					<li><a href="https://svground.fr/tags/http-caching">HTTP caching</a></li>
+					
+					<li><a href="https://svground.fr/tags/elixir">Elixir</a></li>
+					
+					<li><a href="https://svground.fr/tags/a/b-testing">A/B testing</a></li>
+					
+				</ul>
+			</nav>
+			
+			
+		</div>
+		</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/tanguilp/" rel="me" title="GitHub"><i data-feather="github"></i></a>
+    <a class="border"></a><a class="soc" href="https://www.linkedin.com/in/tanguil/" rel="me" title="Linkedin"><i data-feather="linkedin"></i></a>
+    <a class="border"></a></div>
+  <div class="footer-info">
+    2024  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+
+
+<script>
+  feather.replace()
+</script></div>
+    </body>
+</html>

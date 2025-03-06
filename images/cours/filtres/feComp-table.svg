@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="feComp-table.css" charset="utf-8"?>
+
+<svg version="1.1" baseProfile="full" width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>Table avec feComponentTransfer</title>
+
+<defs>
+	<filter id="table-rouge">
+		<feComponentTransfer>
+			<feFuncR type="table" tableValues="0 0.1 0.9 1"/>
+		</feComponentTransfer>
+	</filter>
+	
+	<filter id="table-vert">
+		<feComponentTransfer>
+			<feFuncG type="table" tableValues="1 0.2 0.2 0.2 0.2 0 0.2 0.2 0.2 0.2 1"/>
+		</feComponentTransfer>
+	</filter>
+	
+	<filter id="table-bleu">
+		<feComponentTransfer>
+			<feFuncB type="table" tableValues="1 0 1 0.1 1 0.3 1 0.4 1"/>
+		</feComponentTransfer>
+	</filter>
+	
+	<linearGradient id="degRouge">
+		<stop stop-color="rgb(0,0,0)" offset="0%"/>
+		<stop stop-color="rgb(255,0,0)" offset="100%"/>
+	</linearGradient>
+	
+	<linearGradient id="degVert">
+		<stop stop-color="rgb(0,0,0)" offset="0%"/>
+		<stop stop-color="rgb(0,255,0)" offset="100%"/>
+	</linearGradient>
+	
+	<linearGradient id="degBleu">
+		<stop stop-color="rgb(0,0,0)" offset="0%"/>
+		<stop stop-color="rgb(0,0,255)" offset="100%"/>
+	</linearGradient>
+</defs>
+
+<!-- sans filtre -->
+
+<rect x="5" y="5" width="390" height="42" fill="url(#degRouge)"/>
+<rect x="5" y="52" width="390" height="42" fill="url(#degVert)"/>
+<rect x="5" y="99" width="390" height="42" fill="url(#degBleu)"/>
+
+<!-- avec filtres -->
+
+<rect id="filt-rouge" x="5" y="155" width="390" height="42" fill="url(#degRouge)"/>
+<rect id="filt-vert" x="5" y="202" width="390" height="42" fill="url(#degVert)"/>
+<rect id="filt-bleu" x="5" y="249" width="390" height="42" fill="url(#degBleu)"/>
+
+</svg>

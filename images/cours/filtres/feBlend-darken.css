@@ -1,0 +1,6 @@
+text{
+	text-anchor:middle;
+	font-size:70px;
+	font-weight:bold;
+	filter:url(feBlend-darken.svg);
+	}

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="animateTransform.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<script type="text/ecmascript" xlink:href="../../../inc/smil.user.js"/>
+
+<title>L’animation à base de transformation</title>
+
+<line id="aiguille-heures" x1="200" y1="150" x2="200" y2="100">
+	<animateTransform attributeName="transform" attributeType="XML" type="rotate" 
+	from="0, 200, 150" to="360, 200, 150" 
+	begin="0s" dur="24s" 
+	repeatCount="indefinite"/>
+</line>
+
+<line id="aiguilles-secondes" x1="200" y1="150" x2="200" y2="70">
+	<animateTransform attributeName="transform" attributeType="XML" type="rotate" 
+	from="0, 200, 150" to="360, 200, 150" 
+	begin="0s" dur="2s" 
+	repeatCount="indefinite"/>
+</line>
+
+</svg>
