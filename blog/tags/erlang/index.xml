@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Erlang on Tangui&#39;s blog</title>
+    <link>https://svground.fr/blog/tags/erlang/</link>
+    <description>Recent content in Erlang on Tangui&#39;s blog</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Wed, 04 Oct 2023 12:35:32 +0200</lastBuildDate>
+    <atom:link href="https://svground.fr/blog/tags/erlang/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Introducing http_cache, a BEAM-native standard-compliant HTTP caching library</title>
+      <link>https://svground.fr/blog/posts/introducing-http-cache/</link>
+      <pubDate>Wed, 04 Oct 2023 12:35:32 +0200</pubDate>
+      <guid>https://svground.fr/blog/posts/introducing-http-cache/</guid>
+      <description>&lt;p&gt;One year ago I released the &lt;a href=&#34;https://github.com/tanguilp/http_cache&#34;&gt;&lt;code&gt;http_cache&lt;/code&gt;&lt;/a&gt; Erlang library&#xA;along with 2 Elixir libraries (&lt;a href=&#34;https://github.com/tanguilp/plug_http_cache&#34;&gt;&lt;code&gt;plug_http_cache&lt;/code&gt;&lt;/a&gt;&#xA;and &lt;a href=&#34;https://github.com/tanguilp/tesla_http_cache&#34;&gt;&lt;code&gt;tesla_http_cache&lt;/code&gt;&lt;/a&gt;) that make use of it.&lt;/p&gt;&#xA;&lt;p&gt;When I started writing these libs, I thought it would take a few weeks of work to have them&#xA;completed. HTTP caching is harder than I though, and it took way longer. Why, then, bothering writing&#xA;them when other HTTP caching systems already exist? In this blog post, I intend to explain my&#xA;motivation and show what features they support.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

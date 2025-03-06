@@ -1,0 +1,26 @@
+:root {
+  --maincolor: #9acd32;
+  --bordercl: #4169e1;
+  --hovercolor: unset;
+}
+
+a {
+  font-weight: bold;
+  color:#4169e1;
+}
+
+a:hover {
+  color: #ff1493;
+}
+
+ul {
+  font-family: 'Fira Sans', sans-serif;
+}
+
+ul > li:before {
+  content: '- ';
+}
+
+.soc:hover {
+  color: #ff1493;
+}
