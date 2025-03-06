@@ -1,0 +1,24 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xf="http://www.w3.org/2002/xforms"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<head>
+		<title>Élément de contrôle XForms : upload</title>
+		<xf:model>
+			<xf:instance>
+				<data xmlns="">
+					<image/>
+				</data>
+			</xf:instance>
+			<xf:bind nodeset="image" type="xs:base64Binary"/>
+		</xf:model>
+	</head>
+	<body>
+		<h1>Élément de contrôle XForms : upload</h1>
+		<p>
+			<xf:upload ref="image"
+				mediatype="image/png image/svg+xml">
+				<xf:label>Image à envoyer : </xf:label>
+			</xf:upload>
+		</p>
+	</body>
+</html>

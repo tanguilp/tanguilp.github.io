@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="quadratique-curve-1.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>La commande de courbe de Bézier quadratique</title>
+
+<path d="M 50,100 Q 100,10 350,100"/>
+<!-- point d’inflexion -->
+<circle cx="100" cy="10" r="2"/>
+
+
+<path d="M 50,200 q 340,40 300,0"/>
+<!-- point d’inflexion -->
+<circle cx="390" cy="240" r="2"/>
+
+</svg>

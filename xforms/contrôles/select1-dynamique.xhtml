@@ -1,0 +1,40 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<title>Élément de contrôle XForms : sélection dynamique</title>
+		<xf:model id="modele">
+			<xf:instance id="jours">
+				<jours xmlns="">
+					<jour>Lendi</jour>
+					<jour>Mordi</jour>
+					<jour>Credi</jour>
+					<jour>Joudi</jour>
+					<jour>Dredi</jour>
+					<jour>Sadi</jour>
+					<jour>Gromanche</jour>
+				</jours>
+			</xf:instance>
+
+			<xf:instance id="resultat">
+				<data xmlns=""/>
+			</xf:instance>
+		</xf:model>
+	</head>
+	<body>
+		<h1>Élément de contrôle XForms : sélection dynamique</h1>
+		<p>
+			<xf:select ref="instance('resultat')" appearance="full">
+				<xf:label>Jour d'arrivée au Groland : </xf:label>
+				<xf:itemset nodeset="instance('jours')/jour">
+					<xf:label ref="."/>
+					<xf:value ref="."/>
+				</xf:itemset>
+			</xf:select>
+		</p>
+		<p>
+			<xf:output ref="instance('resultat')">
+				<xf:label>Sélection : </xf:label>
+			</xf:output>
+		</p>
+	</body>
+</html>

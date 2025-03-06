@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="events.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<script type="text/ecmascript" xlink:href="../../../inc/smil.user.js"/>
+
+<title>Les différents évènements</title>
+
+<!-- à gauche : les clics -->
+
+<g id="bouton1">
+	<rect x="60" y="30" width="80" height="30" rx="4" ry="4"/>
+	<text class="button" x="100" y="45"><tspan>Cliquez</tspan></text>
+</g>
+
+
+<text class="anim" x="100" y="100">Clic
+	<set attributeName="visibility" attributeType="CSS"
+	to="visible" begin="bouton1.click"/>
+</text>
+
+<text class="anim" x="100" y="160">Restez appuyé !
+	<set attributeName="visibility" attributeType="CSS"
+	to="visible" begin="bouton1.mousedown" end="bouton1.mouseup"/>
+</text>
+
+
+<!-- ligne séparatrice -->
+
+<line x1="200" x2="200" y1="10" y2="290"/>
+
+<!-- à droite : survol de la souris -->
+
+<g id="bouton2">
+	<rect x="260" y="30" width="80" height="30" rx="4" ry="4"/>
+	<text class="button" x="300" y="45"><tspan>Survolez</tspan></text>
+</g>
+
+
+<text class="anim" x="300" y="100">Souris dessus
+	<set attributeName="visibility" attributeType="CSS"
+	to="visible" begin="bouton2.mouseover" end="bouton2.mouseout"/>
+</text>
+
+<text class="anim" x="300" y="160">Souris bouge
+	<set attributeName="visibility" attributeType="CSS"
+	to="visible" begin="bouton2.mousemove" dur="0.08s"/>
+</text>
+
+</svg>

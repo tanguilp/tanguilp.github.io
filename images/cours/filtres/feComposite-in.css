@@ -1,0 +1,11 @@
+text{
+	filter:url(feComposite-in.svg#comp);
+	text-anchor:middle;
+	font-size:70px;
+	font-weight:bold;
+	fill:black;
+	}
+
+rect{
+	fill:yellowgreen;
+	}

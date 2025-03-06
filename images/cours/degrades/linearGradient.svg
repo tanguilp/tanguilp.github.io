@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="linearGradient.css" charset="utf-8"?>
+
+<svg version="1.1" baseProfile="full" width="100%" height="100%" xml:lang="fr" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid meet" 
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>Un dégradé linéaire dans un rectangle et dans une ellipse</title>
+
+<defs>
+	<linearGradient id="degrade" x1="0" y1="0" x2="100%" y2="100%">
+		<stop offset="0%" id="stop1"/>
+		<stop offset="40%" id="stop2"/>
+		<stop offset="100%" id="stop3"/>
+	</linearGradient>
+</defs>
+
+<rect x="50" y="50" width="200" height="120"/>
+
+<ellipse cx="200" cy="220" rx="120" ry="70"/>
+
+</svg>

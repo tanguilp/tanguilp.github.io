@@ -1,0 +1,74 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:xf="http://www.w3.org/2002/xforms">
+	<head>
+		<title>Élément de contrôle XForms : sélection unique</title>
+		<xf:model>
+			<xf:instance>
+				<data xmlns="">
+					<selection/>
+				</data>
+			</xf:instance>
+		</xf:model>
+	</head>
+	<body>
+		<h1>Élément de contrôle XForms : sélection unique</h1>
+		<p>
+			<xf:select1 ref="selection">
+				<xf:label>Mois</xf:label>
+				<xf:item>
+					<xf:label>Janvier</xf:label>
+					<xf:value>jan</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Février</xf:label>
+					<xf:value>fev</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Mars</xf:label>
+					<xf:value>mar</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Avril</xf:label>
+					<xf:value>avr</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Mai</xf:label>
+					<xf:value>mai</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Juin</xf:label>
+					<xf:value>jui</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Juillet</xf:label>
+					<xf:value>jil</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Août</xf:label>
+					<xf:value>aou</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Septembre</xf:label>
+					<xf:value>sep</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Octobre</xf:label>
+					<xf:value>oct</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Novembre</xf:label>
+					<xf:value>nov</xf:value>
+				</xf:item>
+				<xf:item>
+					<xf:label>Décembre</xf:label>
+					<xf:value>dec</xf:value>
+				</xf:item>
+			</xf:select1>
+		</p>
+		<p>
+			<xf:output ref="selection">
+				<xf:label>Sélection : </xf:label>
+			</xf:output>
+		</p>
+	</body>
+</html>

@@ -1,0 +1,9 @@
+digraph svg {
+	node[shape=none]
+	"<svg/>" -> "<title/>"
+	"<svg/>" -> "<text/>"
+	"<title/>" -> "\"Document SVG de test\""
+	"<text/>" -> "\"Du texte \""
+	"<text/>" -> "<tspan/>"
+	"<tspan/>" -> "\"en SVG\""
+}

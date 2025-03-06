@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/css" href="symbol.css" charset="utf-8"?>
+
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 20010904//EN" "http://www.w3.org/TR/2001/REC-SVG-20010904/DTD/svg10.dtd">
+
+<svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid"
+xml:lang="fr"
+xmlns="http://www.w3.org/2000/svg" 
+xmlns:xlink="http://www.w3.org/1999/xlink">
+
+<title>Utilisation d’un symbole</title>
+
+
+<defs>
+	<symbol id="avion" viewBox="-50 0 100 100" preserveAspectRatio="xMidYMid meet">
+		<!-- avec cette valeur de preserveAspectRatio,
+			le symbole sera toujours centré -->
+	
+		<desc>Aéroport</desc>
+		<!-- fuselage -->
+		<ellipse cx="0" cy="50" rx="8" ry="48"/>
+		
+		<!-- ailes -->
+		<ellipse cx="0" cy="35" rx="46" ry="6"/>
+		
+		<!-- ailerons -->
+		<ellipse cx="0" cy="80" rx="19" ry="2"/>
+	</symbol>
+</defs>
+
+<rect x="10" y="10" width="100" height="100"/>
+<use xlink:href="#avion" x="10" y="10" width="100" height="100"/>
+
+<rect x="10" y="180" width="200" height="100"/>
+<use xlink:href="#avion" x="10" y="180" width="200" height="100"/>
+
+<rect x="240" y="40" width="100" height="200"/>
+<use xlink:href="#avion" x="240" y="40" width="100" height="200"/>
+
+</svg>
+
