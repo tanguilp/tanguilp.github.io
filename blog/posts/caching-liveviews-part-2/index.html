@@ -182,8 +182,7 @@ it the <em>live mount</em></li>
 <a href="https://hexdocs.pm/phoenix_live_view/Phoenix.LiveView.html#c:mount/3">Liveview&rsquo;s <code>mount</code> callback documentation</a>:</p>
 <blockquote>
 <p>For each LiveView in the root of a template, mount/3 is invoked twice: once to do the initial page
-load and again to establish the live socket.</p>
-</blockquote>
+load and again to establish the live socket.</p></blockquote>
 <p>The idea to cache Liveviews with private user content is simple: <strong>render private data only on the
 second render</strong> - the <em>live render</em>.</p>
 <table>
@@ -359,8 +358,7 @@ function that was released in LiveView 0.20. In our LiveView we added:</p>
 </span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">defp</span> get_nb_total_products(), <span style="color:#e6db74">do</span>: {<span style="color:#e6db74">:ok</span>, %{<span style="color:#e6db74">nb_total_products</span>: <span style="color:#a6e22e">Product</span><span style="color:#f92672">.</span>count_products()}}
 </span></span></code></pre></div><p>As the documentation state:</p>
 <blockquote>
-<p>The task is only started when the socket is connected.</p>
-</blockquote>
+<p>The task is only started when the socket is connected.</p></blockquote>
 <p>This is pretty much what we want to do for our private assigns, as well as checking the user is
 authenticated.</p>
 <p>Let&rsquo;s create a helper function similar to <code>assign_async/3</code>:</p>
@@ -505,7 +503,7 @@ risk by implementing well-thought helpers inspired by <code>async_assign</code>.
     <a class="border"></a><a class="soc" href="https://www.linkedin.com/in/tanguil/" rel="me" title="Linkedin"><i data-feather="linkedin"></i></a>
     <a class="border"></a></div>
   <div class="footer-info">
-    2024  <a
+    2025  <a
       href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
   </div>
 </footer>

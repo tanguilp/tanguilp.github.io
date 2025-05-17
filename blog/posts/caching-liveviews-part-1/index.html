@@ -231,8 +231,7 @@ otherwise:</p>
 only for certain sites SHOULD verify the |Origin| field is an origin
 they expect.  If the origin indicated is unacceptable to the server,
 then it SHOULD respond to the WebSocket handshake with a reply
-containing HTTP 403 Forbidden status code.</p>
-</blockquote>
+containing HTTP 403 Forbidden status code.</p></blockquote>
 <p>So let&rsquo;s try to disable CSRF check.</p>
 <h2 id="disabling-csrf-check">Disabling CSRF check</h2>
 <p>The change consist in adding an option to disable CSRF check in Phoenix. The change are hosted
@@ -370,8 +369,7 @@ to cache:</p>
 <blockquote>
 <p>an optional map of private data to put in the <em>plug connection</em>, for example:
 <code>%{route_name: :foo, access: :user}</code>. The data will be available inside <code>conn.private</code> in plug
-functions.</p>
-</blockquote>
+functions.</p></blockquote>
 <p>Another issue is that inside a Liveview module, you have no access to the <code>%Plug.Conn{}</code> connection
 and therefore we can&rsquo;t set the <code>cache-control</code> header. To bypass this issue, we&rsquo;ll use a
 <a href="https://hexdocs.pm/plug/Plug.Conn.html#register_before_send/2">callback</a> to set the <code>cache-control</code>
@@ -472,7 +470,7 @@ mistake and leak personal data?</p>
     <a class="border"></a><a class="soc" href="https://www.linkedin.com/in/tanguil/" rel="me" title="Linkedin"><i data-feather="linkedin"></i></a>
     <a class="border"></a></div>
   <div class="footer-info">
-    2024  <a
+    2025  <a
       href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
   </div>
 </footer>

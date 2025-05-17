@@ -2,6 +2,12 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
+    <loc>https://svground.fr/blog/posts/</loc>
+    <lastmod>2025-05-17T18:30:51+03:00</lastmod>
+  </url><url>
+    <loc>https://svground.fr/blog/</loc>
+    <lastmod>2025-05-17T18:30:51+03:00</lastmod>
+  </url><url>
     <loc>https://svground.fr/blog/posts/caching-liveviews-part-2/</loc>
     <lastmod>2024-09-05T01:39:41+01:00</lastmod>
   </url><url>
@@ -14,13 +20,7 @@
     <loc>https://svground.fr/blog/tags/liveview/</loc>
     <lastmod>2024-09-05T01:39:41+01:00</lastmod>
   </url><url>
-    <loc>https://svground.fr/blog/posts/</loc>
-    <lastmod>2024-09-05T01:39:41+01:00</lastmod>
-  </url><url>
     <loc>https://svground.fr/blog/tags/</loc>
-    <lastmod>2024-09-05T01:39:41+01:00</lastmod>
-  </url><url>
-    <loc>https://svground.fr/blog/</loc>
     <lastmod>2024-09-05T01:39:41+01:00</lastmod>
   </url><url>
     <loc>https://svground.fr/blog/posts/caching-liveviews-part-1/</loc>

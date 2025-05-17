@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html><head lang="en"><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=blog/livereload" data-no-instant defer></script>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Stale cache control directives with TeslaHTTPCache - Tangui&#39;s blog</title><meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="description" content="Elixir HTTP caching libraries have been updated to version 0.4.0 with support for the &ldquo;stale&rdquo;
+cache control directives.
+These two directives are additional directives added by
+RFC5861 - HTTP Cache-Control Extensions for Stale Content.
+They allow serving stale content in particular cases. Content is considered stale when its caching
+time limit has expired. For instance, using the max-age response header:
+cache-control: max-age=60
+this page will be considered stale in 1 minute and no longer served by caches by default." />
+	<meta property="og:image" content=""/>
+	<meta property="og:url" content="http://localhost:1313/blog/posts/stale-cache-control-directives-with-tesla-http-cache/">
+  <meta property="og:site_name" content="Tangui&#39;s blog">
+  <meta property="og:title" content="Stale cache control directives with TeslaHTTPCache">
+  <meta property="og:description" content="Elixir HTTP caching libraries have been updated to version 0.4.0 with support for the “stale” cache control directives.
+These two directives are additional directives added by RFC5861 - HTTP Cache-Control Extensions for Stale Content.
+They allow serving stale content in particular cases. Content is considered stale when its caching time limit has expired. For instance, using the max-age response header:
+cache-control: max-age=60 this page will be considered stale in 1 minute and no longer served by caches by default.">
+  <meta property="og:locale" content="en_us">
+  <meta property="og:type" content="article">
+    <meta property="article:section" content="posts">
+    <meta property="article:published_time" content="2025-05-17T18:30:51+03:00">
+    <meta property="article:modified_time" content="2025-05-17T18:30:51+03:00">
+    <meta property="article:tag" content="HTTP Caching">
+    <meta property="article:tag" content="Elixir">
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Stale cache control directives with TeslaHTTPCache">
+  <meta name="twitter:description" content="Elixir HTTP caching libraries have been updated to version 0.4.0 with support for the “stale” cache control directives.
+These two directives are additional directives added by RFC5861 - HTTP Cache-Control Extensions for Stale Content.
+They allow serving stale content in particular cases. Content is considered stale when its caching time limit has expired. For instance, using the max-age response header:
+cache-control: max-age=60 this page will be considered stale in 1 minute and no longer served by caches by default.">
+<script src="http://localhost:1313/blog/js/feather.min.js"></script>
+	
+	
+        <link href="http://localhost:1313/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+	
+
+	
+	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:1313/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
+
+	
+	
+
+	
+	
+
+	
+		
+		
+		<link rel="stylesheet" type="text/css" href="http://localhost:1313/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
+		
+</head>
+<body>
+        <div class="content"><header>
+	<div class="main">
+		<a href="http://localhost:1313/">Tangui&#39;s blog</a>
+	</div>
+	<nav>
+		
+		<a href="/blog/">Home</a>
+		
+		<a href="/blog/posts">All posts</a>
+		
+		<a href="/blog/about">About</a>
+		
+		<a href="/blog/tags">Tags</a>
+		
+		
+	</nav>
+</header>
+
+<main>
+	<article>
+		<div class="title">
+			<h1 class="title">Stale cache control directives with TeslaHTTPCache</h1>
+			<div class="meta">Posted on May 17, 2025 <span class="draft-label">DRAFT</span> </div>
+		</div>
+		
+
+		
+
+		<section class="body">
+			<p>Elixir HTTP caching libraries have been updated to version <code>0.4.0</code> with support for the &ldquo;stale&rdquo;
+cache control directives.</p>
+<p>These two directives are additional directives added by
+<a href="https://datatracker.ietf.org/doc/html/rfc5861">RFC5861 - HTTP Cache-Control Extensions for Stale Content</a>.</p>
+<p>They allow serving stale content in particular cases. Content is considered stale when its caching
+time limit has expired. For instance, using the <code>max-age</code> response header:</p>
+<pre tabindex="0"><code>cache-control: max-age=60
+</code></pre><p>this page will be considered stale in 1 minute and no longer served by caches by default.</p>
+<p>However, stale pages remain in the cache for what is called a &ldquo;grace&rdquo; period.
+<a href="http://localhost:1313/blog/posts/introducing-http-cache/"><code>http_cache</code></a>, the base Erlang HTTP caching library used
+by higher-level libraries, instructs stores to keep cached response an additional 2 minutes after
+their expiration. And stores may, or may not sweep them quickly.</p>
+<p>And these pages can actually be reused when using the 2 additional cache control directives:</p>
+<ul>
+<li><code>stale-if-error</code></li>
+<li><code>stale-while-revalidate</code></li>
+</ul>
+<p>Let&rsquo;s explore how to use them with
+<a href="https://hex.pm/packages/tesla_http_cache"><code>TeslaHTTPCache</code></a>.</p>
+<p>For this article, we&rsquo;ll use the following minimal Phoenix server:</p>
+<p><code>server.exs</code></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#a6e22e">Application</span><span style="color:#f92672">.</span>put_env(<span style="color:#e6db74">:phoenix</span>, <span style="color:#e6db74">:json_library</span>, <span style="color:#a6e22e">Jason</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Application</span><span style="color:#f92672">.</span>put_env(<span style="color:#e6db74">:sample</span>, <span style="color:#a6e22e">SamplePhoenix.Endpoint</span>, [
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">http</span>: [<span style="color:#e6db74">ip</span>: {<span style="color:#ae81ff">127</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>}, <span style="color:#e6db74">port</span>: <span style="color:#ae81ff">8080</span>],
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">server</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">secret_key_base</span>: <span style="color:#a6e22e">String</span><span style="color:#f92672">.</span>duplicate(<span style="color:#e6db74">&#34;a&#34;</span>, <span style="color:#ae81ff">64</span>)
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Mix</span><span style="color:#f92672">.</span>install([
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:plug_cowboy</span>, <span style="color:#e6db74">&#34;~&gt; 2.5&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:jason</span>, <span style="color:#e6db74">&#34;~&gt; 1.0&#34;</span>},
+</span></span><span style="display:flex;"><span>  {<span style="color:#e6db74">:phoenix</span>, <span style="color:#e6db74">&#34;~&gt; 1.6&#34;</span>}
+</span></span><span style="display:flex;"><span>])
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">SamplePhoenix.SampleController</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">use</span> <span style="color:#a6e22e">Phoenix.Controller</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> index(conn, _) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    conn
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> put_resp_header(<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#f92672">&lt;</span><span style="color:#a6e22e">CACHE</span><span style="color:#f92672">-</span><span style="color:#a6e22e">CONTROL</span><span style="color:#f92672">-</span><span style="color:#a6e22e">DIRECTIVES</span><span style="color:#f92672">&gt;</span>)
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">|&gt;</span> send_resp(<span style="color:#ae81ff">200</span>, <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">Router</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">use</span> <span style="color:#a6e22e">Phoenix.Router</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  pipeline <span style="color:#e6db74">:browser</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    plug <span style="color:#e6db74">:accepts</span>, [<span style="color:#e6db74">&#34;html&#34;</span>]
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  scope <span style="color:#e6db74">&#34;/&#34;</span>, <span style="color:#a6e22e">SamplePhoenix</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    pipe_through <span style="color:#e6db74">:browser</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>    get <span style="color:#e6db74">&#34;/&#34;</span>, <span style="color:#a6e22e">SampleController</span>, <span style="color:#e6db74">:index</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">SamplePhoenix.Endpoint</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">use</span> <span style="color:#a6e22e">Phoenix.Endpoint</span>, <span style="color:#e6db74">otp_app</span>: <span style="color:#e6db74">:sample</span>
+</span></span><span style="display:flex;"><span>  plug <span style="color:#a6e22e">Router</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>, _} <span style="color:#f92672">=</span> <span style="color:#a6e22e">Supervisor</span><span style="color:#f92672">.</span>start_link([<span style="color:#a6e22e">SamplePhoenix.Endpoint</span>], <span style="color:#e6db74">strategy</span>: <span style="color:#e6db74">:one_for_one</span>)
+</span></span><span style="display:flex;"><span><span style="color:#a6e22e">Process</span><span style="color:#f92672">.</span>sleep(<span style="color:#e6db74">:infinity</span>)
+</span></span></code></pre></div><h2 id="the-stale-if-error-cache-control-directive">The <code>stale-if-error</code> cache-control directive</h2>
+<p>The <code>stale-if-error=&lt;seconds&gt;</code> directive indicates that a stale page can be served if the origin
+returns an error (or simply doesn&rsquo;t respond). The RFC says:</p>
+<blockquote>
+<p>In this context, an error is any situation that would result in a 500, 502, 503, or 504
+HTTP response status code being returned.</p></blockquote>
+<p><a href="https://hex.pm/packages/tesla_http_cache"><code>TeslaHTTPCache</code></a> looks up for a stale response whenever:</p>
+<ul>
+<li>the origin returns such a error code</li>
+<li>the origin is unreachable (or any problem at the TCP/TLS/SSL level)</li>
+</ul>
+<p>Note that the <code>stale-if-error</code> directive can be used by both the client and the server. This is
+both a request and response directive.</p>
+<p>Let&rsquo;s try to set up our server with:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">def</span> index(conn, _) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  conn
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> put_resp_header(<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=0, stale-if-error=600&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> send_resp(<span style="color:#ae81ff">200</span>, <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>)
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p><code>max-age=0</code> means we actually don&rsquo;t want to serve cached content in nominal requests. We could of
+course instruct the cache to keep it for a few minutes, but in this case we want the server to always
+serve fresh content, except when there is a problem.</p>
+<p>Let&rsquo;s try to request our server with Tesla:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=0, stale-if-error=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 16:05:32 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=0, stale-if-error=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 16:05:33 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span></code></pre></div><p>No <code>age</code> header in sight - it means there was no cached content served. Now lets stop our server and
+observe the result:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=0, stale-if-error=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 16:05:33 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;63&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span></code></pre></div><p>Cached content was served, as shown by the <code>{&quot;age&quot;, &quot;63&quot;}</code> header. Without the <code>stale-if-error</code>
+directive, we would have instead received the following response:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:error</span>, <span style="color:#e6db74">:econnrefused</span>}
+</span></span></code></pre></div><p>We could have used a request header instead, especially if the server doesn&rsquo;t add its own
+<code>stale-if-error</code> directive:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:error</span>, <span style="color:#e6db74">:econnrefused</span>}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>, <span style="color:#e6db74">headers</span>: [{<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;stale-if-error=600&#34;</span>}])
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=0&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 17:15:12 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;18&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span></code></pre></div><p>Note, however, that when using the request header, the caching system has no clue how long to save
+stale responses. Use <code>http_cache</code>s
+<a href="https://hexdocs.pm/http_cache/http_cache.html#t:opts/0"><code>default_grace</code> option</a> to fine tune the
+retention time if needed:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>[{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_process</span>, <span style="color:#e6db74">default_grace</span>: <span style="color:#ae81ff">3600</span>}}] <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#f92672">|&gt;</span> ...
+</span></span></code></pre></div><p>This cache control header is ideal to protect your app from failures from 3rd party APIs as long
+as their content is cacheable.</p>
+<h2 id="the-stale-while-revalidate-cache-control-directive">The <code>stale-while-revalidate</code> cache-control directive</h2>
+<p>The <code>stale-while-revalidate</code> is a <strong>response</strong> cache directive only. It instructs the cache that it
+can serve stale content but only if it asynchronously reloads the requested page in the background.</p>
+<p>Let&rsquo;s configure our server cache control header as follows: <code>max-age=10, stale-while-revalidate=600</code>.</p>
+<p>It means the page is considered fresh for 10 seconds, and any further request will trigger a refresh
+of this requested page, although the first client requesting it will receive the expired version.</p>
+<p>Let&rsquo;s try to request twice the page within 10 seconds:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_memory</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=10, stale-while-revalidate=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 17:38:50 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_memory</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client()
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=10, stale-while-revalidate=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 17:38:50 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;7&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span></code></pre></div><p>The second request has an <code>age</code> header - cached content was returned.</p>
+<p>Now let&rsquo;s request two more times after the 10s lifetime:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_memory</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=10, stale-while-revalidate=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 17:38:50 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;20&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> [{<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_memory</span>}}] <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client() <span style="color:#960050;background-color:#1e0010">\</span>
+</span></span><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>)
+</span></span><span style="display:flex;"><span>{<span style="color:#e6db74">:ok</span>,
+</span></span><span style="display:flex;"><span> %<span style="color:#a6e22e">Tesla.Env</span>{
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">method</span>: <span style="color:#e6db74">:get</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">url</span>: <span style="color:#e6db74">&#34;http://localhost:8080&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">query</span>: [],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">headers</span>: [
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=10, stale-while-revalidate=600&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;date&#34;</span>, <span style="color:#e6db74">&#34;Sat, 17 May 2025 17:39:09 GMT&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;server&#34;</span>, <span style="color:#e6db74">&#34;Cowboy&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;33&#34;</span>},
+</span></span><span style="display:flex;"><span>     {<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;4&#34;</span>}
+</span></span><span style="display:flex;"><span>   ],
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">body</span>: <span style="color:#e6db74">&#34;Here some good cacheable content!&#34;</span>,
+</span></span><span style="display:flex;"><span>   <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>,
+</span></span><span style="display:flex;"><span>   ...
+</span></span><span style="display:flex;"><span> }}
+</span></span></code></pre></div><p>The <code>age</code> header shows that <code>stale-while-revalidate</code> was effectively used:</p>
+<ul>
+<li>the first request receives the stale response (20 seconds) and triggers a refresh in the
+background</li>
+<li>the second request receives the fresh response that was just asynchronously completed</li>
+</ul>
+<p>One should not hesitate to set huge values for <code>stale-while-revalidate</code> if it suits the needs
+(days or weeks!).</p>
+<p>There are (at least) 2 use-cases for this directive:</p>
+<ul>
+<li>when, for SEO reason, you need to answer as fast as possible, even if the content is slightly
+outdated</li>
+<li>when you need to have a cache always hot: in this case you can warmup your cache on startup and
+then rely on <code>stale-if-revalidate</code> to always have an entry in the cache for an associated resource
+and have your users triggering the refresh mechanism for you</li>
+</ul>
+<p>Since <code>stale-while-revalidate</code> is a response header, you might need to manually set it if the
+target server doesn&rsquo;t return it. You can simply write a Tesla middleware that would look like this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defmodule</span> <span style="color:#a6e22e">MyApp.Utils.TeslaMiddleware.SetStaleWhileRevalidate</span> <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@behaviour</span> <span style="color:#a6e22e">Tesla.Middleware</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">@impl</span> <span style="color:#66d9ef">true</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">def</span> call(env, next, opts) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">case</span> <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>run(env, next) <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>      {<span style="color:#e6db74">:ok</span>, %<span style="color:#a6e22e">Tesla.Env</span>{<span style="color:#e6db74">status</span>: status} <span style="color:#f92672">=</span> env} <span style="color:#f92672">when</span> status <span style="color:#f92672">in</span> <span style="color:#ae81ff">200</span><span style="color:#f92672">..</span><span style="color:#ae81ff">299</span> <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>        {<span style="color:#e6db74">:ok</span>, <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>put_header(env, <span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-age=600, stale-while-revalidate=3600&#34;</span>)}
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>      other <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>        other
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#66d9ef">end</span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><p>and then add it to your middlewares:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#66d9ef">defp</span> client() <span style="color:#66d9ef">do</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#a6e22e">Tesla</span><span style="color:#f92672">.</span>client([
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Tesla.Middleware.Logger</span>,
+</span></span><span style="display:flex;"><span>    {<span style="color:#a6e22e">Tesla.Middleware.BaseUrl</span>, <span style="color:#e6db74">&#34;https://my-api.example.com&#34;</span>},
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">Tesla.Middleware.JSON</span>,
+</span></span><span style="display:flex;"><span>    {<span style="color:#a6e22e">TeslaHTTPCache</span>, %{<span style="color:#e6db74">store</span>: <span style="color:#e6db74">:http_cache_store_memory</span>}},
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">MyApp.Utils.TeslaMiddleware.SetStaleWhileRevalidate</span>
+</span></span><span style="display:flex;"><span>  ])
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>
+</span></span></code></pre></div><h2 id="plughttpcache-support-and-plugloopback"><code>PlugHTTPCache</code> support and <code>PlugLoopback</code></h2>
+<p>Turns out <a href="https://hex.pm/packages/plug_http_cache"><code>PlugHTTPCache</code></a> was updated as well to support
+the <code>stale-while-revalidate</code> directive. It&rsquo;s enabled by default and all you have to do is to
+set the <code>stale-while-revalidate</code> directive in your controllers.</p>
+<p>And… that&rsquo;s it.</p>
+<p>Unless there are some more goodies?</p>
+<p>Indeed.</p>
+<p>In order to implement <code>stale-while-revalidate</code> we need to launch asynchronously a new, almost
+identical request to the same endpoint. The only difference is that we disallow returning a stale
+response (using the cache control directive <code>max-stale=0</code>).</p>
+<p>This is why the <a href="https://hex.pm/packages/plug_loopback"><code>PlugLoopback</code></a> library was created. This
+library helps with creating new <code>Plug.Conn{}</code>s either:</p>
+<ul>
+<li>based on existing ones</li>
+<li>from a Phoenix endpoint</li>
+</ul>
+<p>Copying an existing <code>conn</code> can be performed with the
+<a href="https://hexdocs.pm/plug_loopback/PlugLoopback.html#replay/1"><code>PlugLoopback.replay/1</code></a> function.
+<code>PlugHTTPCache</code> uses it to support <code>stale-while-revalidate</code>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span><span style="color:#a6e22e">Task</span><span style="color:#f92672">.</span>start(<span style="color:#66d9ef">fn</span> <span style="color:#f92672">-&gt;</span>
+</span></span><span style="display:flex;"><span>  conn
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">PlugLoopback</span><span style="color:#f92672">.</span>replay()
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">Plug.Conn</span><span style="color:#f92672">.</span>update_req_header(<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;max-stale=0&#34;</span>, <span style="color:#f92672">&amp;</span>(&amp;1 <span style="color:#f92672">&lt;&gt;</span> <span style="color:#e6db74">&#34;, max-stale=0&#34;</span>))
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> add_validator(cached_headers, <span style="color:#e6db74">&#34;last-modified&#34;</span>, <span style="color:#e6db74">&#34;if-modified-since&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> add_validator(cached_headers, <span style="color:#e6db74">&#34;etag&#34;</span>, <span style="color:#e6db74">&#34;if-none-match&#34;</span>)
+</span></span><span style="display:flex;"><span>  <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">PlugLoopback</span><span style="color:#f92672">.</span>run()
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">end</span>)
+</span></span></code></pre></div><p>It&rsquo;s also possible to create a new conn from an existing endpoint, using
+<a href="https://hexdocs.pm/plug_loopback/PlugLoopback.html#from_phoenix_endpoint/1"><code>PlugLoopback.from_phoenix_endpoint/1</code></a>.
+Might be useful to debug your Phoenix endpoints in the shell.</p>
+<p>Let&rsquo;s run it on <a href="https://github.com/tanguilp/plug_http_cache_demo"><code>plug_http_cache_demo</code></a>:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-elixir" data-lang="elixir"><span style="display:flex;"><span>iex<span style="color:#f92672">&gt;</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.Endpoint</span>
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">PlugLoopback</span><span style="color:#f92672">.</span>from_phoenix_endpoint()
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">PlugLoopback</span><span style="color:#f92672">.</span>get(<span style="color:#e6db74">&#34;/fibo?number=42&#34;</span>)
+</span></span><span style="display:flex;"><span>...<span style="color:#f92672">&gt;</span> <span style="color:#f92672">|&gt;</span> <span style="color:#a6e22e">PlugLoopback</span><span style="color:#f92672">.</span>run()
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>%<span style="color:#a6e22e">Plug.Conn</span>{
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">adapter</span>: {<span style="color:#a6e22e">PlugLoopback.Adapter</span>, <span style="color:#e6db74">:...</span>},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">assigns</span>: %{},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">body_params</span>: %{},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">cookies</span>: %{
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;_plug_http_cache_demo_key&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;SFMyNTY.g3QAAAABbQAAAAdhYi10ZXN0bQAAAAFh.u9bHKaB74qw8pyCyCX_T_urMcxmOfpYNhwaG5Hm8uIo&#34;</span>
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">halted</span>: <span style="color:#66d9ef">true</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">host</span>: <span style="color:#e6db74">&#34;localhost&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">method</span>: <span style="color:#e6db74">&#34;GET&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">owner</span>: <span style="color:#75715e">#PID&lt;0.469.0&gt;,</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">params</span>: %{<span style="color:#e6db74">&#34;number&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;42&#34;</span>},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">path_info</span>: [<span style="color:#e6db74">&#34;fibo&#34;</span>],
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">path_params</span>: %{},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">port</span>: <span style="color:#ae81ff">4000</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">private</span>: %{
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:phoenix_endpoint</span> <span style="color:#f92672">=&gt;</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.Endpoint</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:plug_session_info</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">:write</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:plug_session_fetch</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">:done</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:plug_session</span> <span style="color:#f92672">=&gt;</span> %{<span style="color:#e6db74">&#34;ab-test&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;a&#34;</span>},
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:before_send</span> <span style="color:#f92672">=&gt;</span> [<span style="color:#75715e">#Function&lt;0.98198498/1 in Plug.CSRFProtection.call/2&gt;,</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">#Function&lt;2.127108782/1 in Phoenix.Controller.fetch_flash/2&gt;,</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">#Function&lt;0.9035112/1 in Plug.Session.before_send/2&gt;,</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">#Function&lt;0.106864063/1 in Plug.Telemetry.call/2&gt;,</span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">#Function&lt;1.39858237/1 in Phoenix.LiveReloader.before_send_inject_reloader/3&gt;],</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.Router</span> <span style="color:#f92672">=&gt;</span> {[], %{}},
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:phoenix_router</span> <span style="color:#f92672">=&gt;</span> <span style="color:#a6e22e">PlugHTTPCacheDemoWeb.Router</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:phoenix_flash</span> <span style="color:#f92672">=&gt;</span> %{},
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:phoenix_format</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;html&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">:phoenix_root_layout</span> <span style="color:#f92672">=&gt;</span> {<span style="color:#a6e22e">PlugHTTPCacheDemoWeb.LayoutView</span>, <span style="color:#e6db74">:root</span>}
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">query_params</span>: %{<span style="color:#e6db74">&#34;number&#34;</span> <span style="color:#f92672">=&gt;</span> <span style="color:#e6db74">&#34;42&#34;</span>},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">query_string</span>: <span style="color:#e6db74">&#34;number=42&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">remote_ip</span>: {<span style="color:#ae81ff">127</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">1</span>},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">req_cookies</span>: %{},
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">req_headers</span>: [{<span style="color:#e6db74">&#34;ab-test&#34;</span>, <span style="color:#e6db74">&#34;a&#34;</span>}],
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">request_path</span>: <span style="color:#e6db74">&#34;/fibo&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">resp_body</span>: <span style="color:#e6db74">&#34;&lt;!DOCTYPE html&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;html lang=\&#34;en\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;head&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;meta charset=\&#34;utf-8\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;meta http-equiv=\&#34;X-UA-Compatible\&#34; content=\&#34;IE=edge\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;meta name=\&#34;viewport\&#34; content=\&#34;width=device-width, initial-scale=1.0\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;meta content=\&#34;MDsVPityH1w4ITsjNBcCKiBxIVQLJQZyjpQrm_l8uStUrDmuN5d6Gu_E\&#34; name=\&#34;csrf-token\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;title data-suffix=\&#34; · Phoenix Framework\&#34;&gt;PhoenixHttpCacheDemo · Phoenix Framework&lt;/title&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;link phx-track-static rel=\&#34;stylesheet\&#34; href=\&#34;/assets/app.css\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;script defer phx-track-static type=\&#34;text/javascript\&#34; src=\&#34;/assets/app.js\&#34;&gt;&lt;/script&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;/head&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;body&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;header&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">      &lt;section class=\&#34;container\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">        &lt;nav&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">          &lt;ul&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">            &lt;li&gt;&lt;a href=\&#34;/\&#34;&gt;Home&lt;/a&gt;&lt;/li&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">            &lt;li&gt;&lt;a href=\&#34;/dashboard\&#34;&gt;LiveDashboard&lt;/a&gt;&lt;/li&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">          &lt;/ul&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">        &lt;/nav&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">        &lt;a href=\&#34;https://phoenixframework.org/\&#34; class=\&#34;phx-logo\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">          &lt;img src=\&#34;/images/phoenix.png\&#34; alt=\&#34;Phoenix Framework Logo\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">        &lt;/a&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">      &lt;/section&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">    &lt;/header&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;main class=\&#34;container\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;p class=\&#34;alert alert-info\&#34; role=\&#34;alert\&#34;&gt;&lt;/p&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;p class=\&#34;alert alert-danger\&#34; role=\&#34;alert\&#34;&gt;&lt;/p&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;section class=\&#34;phx-hero\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;h1&gt;Welcome to PhoenixHTTPCache demo!&lt;/h1&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;/section&gt;</span><span style="color:#ae81ff">\n\n</span><span style="color:#e6db74">&lt;section&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;h2&gt;Info&lt;/h2&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;p style=\&#34;overflow-wrap: break-word;\&#34;&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">      fibo(42) = 267914296</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;/p&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;/section&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;/main&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">  &lt;iframe hidden height=\&#34;0\&#34; width=\&#34;0\&#34; src=\&#34;/phoenix/live_reload/frame\&#34;&gt;&lt;/iframe&gt;&lt;/body&gt;</span><span style="color:#ae81ff">\n</span><span style="color:#e6db74">&lt;/html&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">resp_cookies</span>: %{
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;_plug_http_cache_demo_key&#34;</span> <span style="color:#f92672">=&gt;</span> %{
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">value</span>: <span style="color:#e6db74">&#34;SFMyNTY.g3QAAAABbQAAAAdhYi10ZXN0bQAAAAFh.u9bHKaB74qw8pyCyCX_T_urMcxmOfpYNhwaG5Hm8uIo&#34;</span>
+</span></span><span style="display:flex;"><span>    }
+</span></span><span style="display:flex;"><span>  },
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">resp_headers</span>: [
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;set-cookie&#34;</span>,
+</span></span><span style="display:flex;"><span>     <span style="color:#e6db74">&#34;_plug_http_cache_demo_key=SFMyNTY.g3QAAAABbQAAAAdhYi10ZXN0bQAAAAFh.u9bHKaB74qw8pyCyCX_T_urMcxmOfpYNhwaG5Hm8uIo; path=/; HttpOnly&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;content-type&#34;</span>, <span style="color:#e6db74">&#34;text/html; charset=utf-8&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;vary&#34;</span>, <span style="color:#e6db74">&#34;ab-test, accept-encoding&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;cache-control&#34;</span>, <span style="color:#e6db74">&#34;s-maxage=1200, public&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;x-request-id&#34;</span>, <span style="color:#e6db74">&#34;GEBlfW_qdCwsxewAAAFE&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;x-frame-options&#34;</span>, <span style="color:#e6db74">&#34;SAMEORIGIN&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;x-xss-protection&#34;</span>, <span style="color:#e6db74">&#34;1; mode=block&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;x-content-type-options&#34;</span>, <span style="color:#e6db74">&#34;nosniff&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;x-download-options&#34;</span>, <span style="color:#e6db74">&#34;noopen&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;x-permitted-cross-domain-policies&#34;</span>, <span style="color:#e6db74">&#34;none&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;cross-origin-window-policy&#34;</span>, <span style="color:#e6db74">&#34;deny&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;content-length&#34;</span>, <span style="color:#e6db74">&#34;1297&#34;</span>},
+</span></span><span style="display:flex;"><span>    {<span style="color:#e6db74">&#34;age&#34;</span>, <span style="color:#e6db74">&#34;30&#34;</span>}
+</span></span><span style="display:flex;"><span>  ],
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">scheme</span>: <span style="color:#e6db74">:http</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">script_name</span>: [],
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">secret_key_base</span>: <span style="color:#e6db74">:...</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">state</span>: <span style="color:#e6db74">:sent</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">status</span>: <span style="color:#ae81ff">200</span>
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>Note that the response body is returned - which is not always the case with other adapters
+(<code>PlugLoopback</code> has its own) since it&rsquo;s usually unnecessary as the response body is sent through
+the adapter to the HTTP client.</p>
+<p>An obvious use-case for this library would be, used along with <code>PlugHTTPCache</code>, to warmup your
+cache on application startup. Assuming you have a sitemap and those pages are cacheable, you could,
+for example, launch a process at startup that:</p>
+<ol>
+<li>gets your <code>sitemap.xml</code> using <code>PlugLoopback</code> and decodes it</li>
+<li>generate a stream from the sitemap</li>
+<li>use <a href="https://hexdocs.pm/elixir/1.13/Task.html#async_stream/3"><code>Task.async_stream/3</code></a> to request
+each URL with <code>PlugLoopback</code> and let <code>PlugHTTPCache</code> cache the responses</li>
+</ol>
+<p><code>PlugLoopback</code> supports replaying JSON and URLencoded request bodies, but still remains very <code>v0.1.0</code>
+at this time. Contributions are <a href="https://github.com/tanguilp/plug_loopback">welcome</a>!</p>
+<h2 id="le-mot-de-la-fin">Le mot de la fin</h2>
+<p>Happy caching!</p>
+
+		</section>
+
+		<div class="post-tags">
+			
+			
+			<nav class="nav tags">
+				<ul class="tags">
+					
+					<li><a href="/tags/http-caching">HTTP caching</a></li>
+					
+					<li><a href="/tags/elixir">Elixir</a></li>
+					
+				</ul>
+			</nav>
+			
+			
+		</div>
+		</article>
+</main>
+<footer>
+  <div style="display:flex"><a class="soc" href="https://github.com/tanguilp/" rel="me" title="GitHub"><i data-feather="github"></i></a>
+    <a class="border"></a><a class="soc" href="https://www.linkedin.com/in/tanguil/" rel="me" title="Linkedin"><i data-feather="linkedin"></i></a>
+    <a class="border"></a></div>
+  <div class="footer-info">
+    2025  <a
+      href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
+  </div>
+</footer>
+<script>
+  feather.replace()
+</script></div>
+    </body>
+</html>
