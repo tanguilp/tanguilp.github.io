@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
-	<head lang="en">
+	<head lang="en"><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=blog/livereload" data-no-instant defer></script>
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Tangui&#39;s blog | Home </title><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="" />
 	<meta property="og:image" content=""/>
-	<link rel="alternate" type="application/rss+xml" href="https://svground.fr/blog/index.xml" title="Tangui's blog" />
-	<meta property="og:url" content="https://svground.fr/blog/">
+	<link rel="alternate" type="application/rss+xml" href="http://localhost:1313/blog/index.xml" title="Tangui's blog" />
+	<meta property="og:url" content="http://localhost:1313/blog/">
   <meta property="og:site_name" content="Tangui&#39;s blog">
   <meta property="og:title" content="Tangui&#39;s blog">
   <meta property="og:locale" content="en_us">
@@ -14,14 +14,14 @@
 
   <meta name="twitter:card" content="summary">
   <meta name="twitter:title" content="Tangui&#39;s blog">
-<script src="https://svground.fr/blog/js/feather.min.js"></script>
+<script src="http://localhost:1313/blog/js/feather.min.js"></script>
 	
 	
-        <link href="https://svground.fr/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+        <link href="http://localhost:1313/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
 	
 
 	
-	<link rel="stylesheet" type="text/css" media="screen" href="https://svground.fr/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:1313/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
 
 	
 	
@@ -32,7 +32,7 @@
 	
 		
 		
-		<link rel="stylesheet" type="text/css" href="https://svground.fr/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
+		<link rel="stylesheet" type="text/css" href="http://localhost:1313/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
 		
 </head>
 
@@ -40,7 +40,7 @@
 		<div class="content">
 			<header>
 	<div class="main">
-		<a href="https://svground.fr/">Tangui&#39;s blog</a>
+		<a href="http://localhost:1313/">Tangui&#39;s blog</a>
 	</div>
 	<nav>
 		
@@ -63,11 +63,29 @@
 				
 				
 				<section class="list-item">
+					<h1 class="title"><a href="/blog/posts/stale-cache-control-directives-with-tesla-http-cache/">Stale cache control directives with TeslaHTTPCache</a></h1>
+					<time>May 17, 2025</time>
+					<br><div class="description">
+	
+	<p>Elixir HTTP caching libraries have been updated to version <code>0.4.0</code> with support for the &ldquo;stale&rdquo;
+cache control directives.</p>
+<p>These two directives are additional directives added by
+<a href="https://datatracker.ietf.org/doc/html/rfc5861">RFC5861 - HTTP Cache-Control Extensions for Stale Content</a>.</p>
+<p>They allow serving stale content in particular cases. Content is considered stale when its caching
+time limit has expired. For instance, using the <code>max-age</code> response header:</p>
+<pre tabindex="0"><code>cache-control: max-age=60
+</code></pre><p>this page will be considered stale in 1 minute and no longer served by caches by default.</p>&hellip;
+	
+</div>
+					<a class="readmore" href="/blog/posts/stale-cache-control-directives-with-tesla-http-cache/">Read more ⟶</a>
+				</section>
+				
+				<section class="list-item">
 					<h1 class="title"><a href="/blog/posts/caching-liveviews-part-2/">Caching Liveviews - Part 2: Publicly caching private Liveviews</a></h1>
 					<time>Sep 5, 2024</time>
 					<br><div class="description">
 	
-	<p>In <a href="https://svground.fr/blog/posts/caching-liveviews-part-1/">Part 1: The road to HTTP-caching Liveviews</a>, we&rsquo;ve
+	<p>In <a href="http://localhost:1313/blog/posts/caching-liveviews-part-1/">Part 1: The road to HTTP-caching Liveviews</a>, we&rsquo;ve
 succeeded in caching the initial rendering of Liveviews.</p>
 <p>For this we had to:</p>
 <ul>
@@ -89,7 +107,7 @@ generated for a user A to all other users.</p>&hellip;
 					<time>Aug 31, 2024</time>
 					<br><div class="description">
 	
-	<p>Since I release of <a href="https://svground.fr/blog/posts/introducing-http-cache/">HTTP caching libraries</a> for Elixir and
+	<p>Since I release of <a href="http://localhost:1313/blog/posts/introducing-http-cache/">HTTP caching libraries</a> for Elixir and
 particularly <a href="https://hex.pm/packages/plug_http_cache"><code>plug_http_cache</code></a>, the most
 frequent question has been if it&rsquo;s possible to cache Liveviews.</p>
 <h2 id="why-caching-liveviews">Why caching Liveviews</h2>
@@ -110,7 +128,7 @@ projects.</p>&hellip;
 					<time>Aug 13, 2024</time>
 					<br><div class="description">
 	
-	<p>In the previous <a href="https://svground.fr/blog/posts/introducing-http-cache/">article</a>, we discussed how to setup
+	<p>In the previous <a href="http://localhost:1313/blog/posts/introducing-http-cache/">article</a>, we discussed how to setup
 <a href="https://hex.pm/packages/plug_http_cache"><code>plug_http_cache</code></a> to cache Phoenix&rsquo;s response.</p>
 <p>In this article, we&rsquo;ll take a look at the specific case of caching when doing A/B testing.</p>
 <p>A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and
@@ -152,8 +170,6 @@ motivation and show what features they support.</p>&hellip;
       href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
   </div>
 </footer>
-
-
 <script>
   feather.replace()
 </script>
