@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><head lang="en"><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=blog/livereload" data-no-instant defer></script>
+<html><head lang="en">
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Stale cache control directives with TeslaHTTPCache - Tangui&#39;s blog</title><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="Elixir HTTP caching libraries have been updated to version 0.4.0 with support for the &ldquo;stale&rdquo;
@@ -11,7 +11,7 @@ time limit has expired. For instance, using the max-age response header:
 cache-control: max-age=60
 this page will be considered stale in 1 minute and no longer served by caches by default." />
 	<meta property="og:image" content=""/>
-	<meta property="og:url" content="http://localhost:1313/blog/posts/stale-cache-control-directives-with-tesla-http-cache/">
+	<meta property="og:url" content="https://svground.fr/blog/posts/stale-cache-control-directives-with-tesla-http-cache/">
   <meta property="og:site_name" content="Tangui&#39;s blog">
   <meta property="og:title" content="Stale cache control directives with TeslaHTTPCache">
   <meta property="og:description" content="Elixir HTTP caching libraries have been updated to version 0.4.0 with support for the “stale” cache control directives.
@@ -32,14 +32,14 @@ cache-control: max-age=60 this page will be considered stale in 1 minute and no 
 These two directives are additional directives added by RFC5861 - HTTP Cache-Control Extensions for Stale Content.
 They allow serving stale content in particular cases. Content is considered stale when its caching time limit has expired. For instance, using the max-age response header:
 cache-control: max-age=60 this page will be considered stale in 1 minute and no longer served by caches by default.">
-<script src="http://localhost:1313/blog/js/feather.min.js"></script>
+<script src="https://svground.fr/blog/js/feather.min.js"></script>
 	
 	
-        <link href="http://localhost:1313/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+        <link href="https://svground.fr/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
 	
 
 	
-	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:1313/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://svground.fr/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
 
 	
 	
@@ -50,13 +50,13 @@ cache-control: max-age=60 this page will be considered stale in 1 minute and no 
 	
 		
 		
-		<link rel="stylesheet" type="text/css" href="http://localhost:1313/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
+		<link rel="stylesheet" type="text/css" href="https://svground.fr/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
 		
 </head>
 <body>
         <div class="content"><header>
 	<div class="main">
-		<a href="http://localhost:1313/">Tangui&#39;s blog</a>
+		<a href="https://svground.fr/">Tangui&#39;s blog</a>
 	</div>
 	<nav>
 		
@@ -92,7 +92,7 @@ time limit has expired. For instance, using the <code>max-age</code> response he
 <pre tabindex="0"><code>cache-control: max-age=60
 </code></pre><p>this page will be considered stale in 1 minute and no longer served by caches by default.</p>
 <p>However, stale pages remain in the cache for what is called a &ldquo;grace&rdquo; period.
-<a href="http://localhost:1313/blog/posts/introducing-http-cache/"><code>http_cache</code></a>, the base Erlang HTTP caching library used
+<a href="https://svground.fr/blog/posts/introducing-http-cache/"><code>http_cache</code></a>, the base Erlang HTTP caching library used
 by higher-level libraries, instructs stores to keep cached response an additional 2 minutes after
 their expiration. And stores may, or may not sweep them quickly.</p>
 <p>And these pages can actually be reused when using the 2 additional cache control directives:</p>
@@ -541,6 +541,8 @@ at this time. Contributions are <a href="https://github.com/tanguilp/plug_loopba
       href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
   </div>
 </footer>
+
+
 <script>
   feather.replace()
 </script></div>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html><head lang="en"><script src="/blog/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=blog/livereload" data-no-instant defer></script>
+<html><head lang="en">
 	<meta charset="utf-8" />
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Caching Liveviews - Part 2: Publicly caching private Liveviews - Tangui&#39;s blog</title><meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="description" content="In Part 1: The road to HTTP-caching Liveviews, we&rsquo;ve
@@ -15,7 +15,7 @@ So far we succeeded in caching Liveviews that render public content. Caching pri
 plug_http_cache or a CDN makes little sense, as the goal of a shared cache is to reuse response
 generated for a user A to all other users." />
 	<meta property="og:image" content=""/>
-	<meta property="og:url" content="http://localhost:1313/blog/posts/caching-liveviews-part-2/">
+	<meta property="og:url" content="https://svground.fr/blog/posts/caching-liveviews-part-2/">
   <meta property="og:site_name" content="Tangui&#39;s blog">
   <meta property="og:title" content="Caching Liveviews - Part 2: Publicly caching private Liveviews">
   <meta property="og:description" content="In Part 1: The road to HTTP-caching Liveviews, we’ve succeeded in caching the initial rendering of Liveviews.
@@ -35,14 +35,14 @@ disable CSRF token check, using a modified version of Phoenix disable sending th
   <meta name="twitter:description" content="In Part 1: The road to HTTP-caching Liveviews, we’ve succeeded in caching the initial rendering of Liveviews.
 For this we had to:
 disable CSRF token check, using a modified version of Phoenix disable sending the CSRF token when establishing the websocket connection configure a Plug that sets the cache-control header and eventually configure PlugHTTPCache So far we succeeded in caching Liveviews that render public content. Caching private content with plug_http_cache or a CDN makes little sense, as the goal of a shared cache is to reuse response generated for a user A to all other users.">
-<script src="http://localhost:1313/blog/js/feather.min.js"></script>
+<script src="https://svground.fr/blog/js/feather.min.js"></script>
 	
 	
-        <link href="http://localhost:1313/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
+        <link href="https://svground.fr/blog/css/fonts.2c2227b81b1970a03e760aa2e6121cd01f87c88586803cbb282aa224720a765f.css" rel="stylesheet">
 	
 
 	
-	<link rel="stylesheet" type="text/css" media="screen" href="http://localhost:1313/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
+	<link rel="stylesheet" type="text/css" media="screen" href="https://svground.fr/blog/css/main.5cebd7d4fb2b97856af8d32a6def16164fcf7d844e98e236fcb3559655020373.css" />
 
 	
 	
@@ -53,13 +53,13 @@ disable CSRF token check, using a modified version of Phoenix disable sending th
 	
 		
 		
-		<link rel="stylesheet" type="text/css" href="http://localhost:1313/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
+		<link rel="stylesheet" type="text/css" href="https://svground.fr/blog/css/custom.d287809400cafea254e83ff2007e8eae4bcba882165ffd064d74d2483d34b156.css">
 		
 </head>
 <body>
         <div class="content"><header>
 	<div class="main">
-		<a href="http://localhost:1313/">Tangui&#39;s blog</a>
+		<a href="https://svground.fr/">Tangui&#39;s blog</a>
 	</div>
 	<nav>
 		
@@ -86,7 +86,7 @@ disable CSRF token check, using a modified version of Phoenix disable sending th
 		
 
 		<section class="body">
-			<p>In <a href="http://localhost:1313/blog/posts/caching-liveviews-part-1/">Part 1: The road to HTTP-caching Liveviews</a>, we&rsquo;ve
+			<p>In <a href="https://svground.fr/blog/posts/caching-liveviews-part-1/">Part 1: The road to HTTP-caching Liveviews</a>, we&rsquo;ve
 succeeded in caching the initial rendering of Liveviews.</p>
 <p>For this we had to:</p>
 <ul>
@@ -120,7 +120,7 @@ the page contains only 30% of the article, and the second version, for subscribe
 contains the full content. In this case we would cache the 2 pages, and return the right one
 depending on the user&rsquo;s billing status.</p>
 <p>This method is quite similar to what we&rsquo;ve done in
-<a href="http://localhost:1313/blog/posts/ab-test-with-plug-http-cache/">A/B testing and HTTP caching with <code>plug_http_cache</code></a> and
+<a href="https://svground.fr/blog/posts/ab-test-with-plug-http-cache/">A/B testing and HTTP caching with <code>plug_http_cache</code></a> and
 may or may not use the <code>vary</code> header (this is not important).</p>
 <p>It therefore suffers from the same downsides:</p>
 <ul>
@@ -507,6 +507,8 @@ risk by implementing well-thought helpers inspired by <code>async_assign</code>.
       href="https://github.com/athul/archie">Archie Theme</a> | Built with <a href="https://gohugo.io">Hugo</a>
   </div>
 </footer>
+
+
 <script>
   feather.replace()
 </script></div>

@@ -2,52 +2,52 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Tangui&#39;s blog</title>
-    <link>http://localhost:1313/blog/</link>
+    <link>https://svground.fr/blog/</link>
     <description>Recent content on Tangui&#39;s blog</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Sat, 17 May 2025 18:30:51 +0300</lastBuildDate>
-    <atom:link href="http://localhost:1313/blog/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://svground.fr/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Stale cache control directives with TeslaHTTPCache</title>
-      <link>http://localhost:1313/blog/posts/stale-cache-control-directives-with-tesla-http-cache/</link>
+      <link>https://svground.fr/blog/posts/stale-cache-control-directives-with-tesla-http-cache/</link>
       <pubDate>Sat, 17 May 2025 18:30:51 +0300</pubDate>
-      <guid>http://localhost:1313/blog/posts/stale-cache-control-directives-with-tesla-http-cache/</guid>
+      <guid>https://svground.fr/blog/posts/stale-cache-control-directives-with-tesla-http-cache/</guid>
       <description>&lt;p&gt;Elixir HTTP caching libraries have been updated to version &lt;code&gt;0.4.0&lt;/code&gt; with support for the &amp;ldquo;stale&amp;rdquo;&#xA;cache control directives.&lt;/p&gt;&#xA;&lt;p&gt;These two directives are additional directives added by&#xA;&lt;a href=&#34;https://datatracker.ietf.org/doc/html/rfc5861&#34;&gt;RFC5861 - HTTP Cache-Control Extensions for Stale Content&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;They allow serving stale content in particular cases. Content is considered stale when its caching&#xA;time limit has expired. For instance, using the &lt;code&gt;max-age&lt;/code&gt; response header:&lt;/p&gt;&#xA;&lt;pre tabindex=&#34;0&#34;&gt;&lt;code&gt;cache-control: max-age=60&#xA;&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;this page will be considered stale in 1 minute and no longer served by caches by default.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Caching Liveviews - Part 2: Publicly caching private Liveviews</title>
-      <link>http://localhost:1313/blog/posts/caching-liveviews-part-2/</link>
+      <link>https://svground.fr/blog/posts/caching-liveviews-part-2/</link>
       <pubDate>Thu, 05 Sep 2024 01:39:41 +0100</pubDate>
-      <guid>http://localhost:1313/blog/posts/caching-liveviews-part-2/</guid>
-      <description>&lt;p&gt;In &lt;a href=&#34;http://localhost:1313/blog/posts/caching-liveviews-part-1/&#34;&gt;Part 1: The road to HTTP-caching Liveviews&lt;/a&gt;, we&amp;rsquo;ve&#xA;succeeded in caching the initial rendering of Liveviews.&lt;/p&gt;&#xA;&lt;p&gt;For this we had to:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;disable CSRF token check, using a modified version of Phoenix&lt;/li&gt;&#xA;&lt;li&gt;disable sending the CSRF token when establishing the websocket connection&lt;/li&gt;&#xA;&lt;li&gt;configure a Plug that sets the &lt;code&gt;cache-control&lt;/code&gt; header&lt;/li&gt;&#xA;&lt;li&gt;and eventually configure &lt;code&gt;PlugHTTPCache&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;So far we succeeded in caching Liveviews that render public content. Caching private content with&#xA;&lt;code&gt;plug_http_cache&lt;/code&gt; or a CDN makes little sense, as the goal of a shared cache is to reuse response&#xA;generated for a user A to all other users.&lt;/p&gt;</description>
+      <guid>https://svground.fr/blog/posts/caching-liveviews-part-2/</guid>
+      <description>&lt;p&gt;In &lt;a href=&#34;https://svground.fr/blog/posts/caching-liveviews-part-1/&#34;&gt;Part 1: The road to HTTP-caching Liveviews&lt;/a&gt;, we&amp;rsquo;ve&#xA;succeeded in caching the initial rendering of Liveviews.&lt;/p&gt;&#xA;&lt;p&gt;For this we had to:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;disable CSRF token check, using a modified version of Phoenix&lt;/li&gt;&#xA;&lt;li&gt;disable sending the CSRF token when establishing the websocket connection&lt;/li&gt;&#xA;&lt;li&gt;configure a Plug that sets the &lt;code&gt;cache-control&lt;/code&gt; header&lt;/li&gt;&#xA;&lt;li&gt;and eventually configure &lt;code&gt;PlugHTTPCache&lt;/code&gt;&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;p&gt;So far we succeeded in caching Liveviews that render public content. Caching private content with&#xA;&lt;code&gt;plug_http_cache&lt;/code&gt; or a CDN makes little sense, as the goal of a shared cache is to reuse response&#xA;generated for a user A to all other users.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Caching Liveviews - Part 1: The road to HTTP-caching Liveviews</title>
-      <link>http://localhost:1313/blog/posts/caching-liveviews-part-1/</link>
+      <link>https://svground.fr/blog/posts/caching-liveviews-part-1/</link>
       <pubDate>Sat, 31 Aug 2024 13:04:22 +0100</pubDate>
-      <guid>http://localhost:1313/blog/posts/caching-liveviews-part-1/</guid>
-      <description>&lt;p&gt;Since I release of &lt;a href=&#34;http://localhost:1313/blog/posts/introducing-http-cache/&#34;&gt;HTTP caching libraries&lt;/a&gt; for Elixir and&#xA;particularly &lt;a href=&#34;https://hex.pm/packages/plug_http_cache&#34;&gt;&lt;code&gt;plug_http_cache&lt;/code&gt;&lt;/a&gt;, the most&#xA;frequent question has been if it&amp;rsquo;s possible to cache Liveviews.&lt;/p&gt;&#xA;&lt;h2 id=&#34;why-caching-liveviews&#34;&gt;Why caching Liveviews&lt;/h2&gt;&#xA;&lt;p&gt;The first reason is &lt;strong&gt;SEO&lt;/strong&gt;, that is to speed up page loading to get a better page ranking. Search&#xA;engines take into account many parameters, including the Time To First Byte which is why caching is&#xA;important for some Phoenix apps. Although you can theoretically develop some pages with Liveview&#xA;(not cacheable until today) and some others, with no interactive, in plain old Phoenix views&#xA;(cacheable - but they&amp;rsquo;ll never have Liveview&amp;rsquo;s interactivity), developers tend to choose only one&#xA;option. I&amp;rsquo;ve heard that the lack of cacheability has been a obstacle to adopting Liveview in some&#xA;projects.&lt;/p&gt;</description>
+      <guid>https://svground.fr/blog/posts/caching-liveviews-part-1/</guid>
+      <description>&lt;p&gt;Since I release of &lt;a href=&#34;https://svground.fr/blog/posts/introducing-http-cache/&#34;&gt;HTTP caching libraries&lt;/a&gt; for Elixir and&#xA;particularly &lt;a href=&#34;https://hex.pm/packages/plug_http_cache&#34;&gt;&lt;code&gt;plug_http_cache&lt;/code&gt;&lt;/a&gt;, the most&#xA;frequent question has been if it&amp;rsquo;s possible to cache Liveviews.&lt;/p&gt;&#xA;&lt;h2 id=&#34;why-caching-liveviews&#34;&gt;Why caching Liveviews&lt;/h2&gt;&#xA;&lt;p&gt;The first reason is &lt;strong&gt;SEO&lt;/strong&gt;, that is to speed up page loading to get a better page ranking. Search&#xA;engines take into account many parameters, including the Time To First Byte which is why caching is&#xA;important for some Phoenix apps. Although you can theoretically develop some pages with Liveview&#xA;(not cacheable until today) and some others, with no interactive, in plain old Phoenix views&#xA;(cacheable - but they&amp;rsquo;ll never have Liveview&amp;rsquo;s interactivity), developers tend to choose only one&#xA;option. I&amp;rsquo;ve heard that the lack of cacheability has been a obstacle to adopting Liveview in some&#xA;projects.&lt;/p&gt;</description>
     </item>
     <item>
       <title>A/B testing and HTTP caching with `plug_http_cache`</title>
-      <link>http://localhost:1313/blog/posts/ab-test-with-plug-http-cache/</link>
+      <link>https://svground.fr/blog/posts/ab-test-with-plug-http-cache/</link>
       <pubDate>Tue, 13 Aug 2024 12:34:32 +0300</pubDate>
-      <guid>http://localhost:1313/blog/posts/ab-test-with-plug-http-cache/</guid>
-      <description>&lt;p&gt;In the previous &lt;a href=&#34;http://localhost:1313/blog/posts/introducing-http-cache/&#34;&gt;article&lt;/a&gt;, we discussed how to setup&#xA;&lt;a href=&#34;https://hex.pm/packages/plug_http_cache&#34;&gt;&lt;code&gt;plug_http_cache&lt;/code&gt;&lt;/a&gt; to cache Phoenix&amp;rsquo;s response.&lt;/p&gt;&#xA;&lt;p&gt;In this article, we&amp;rsquo;ll take a look at the specific case of caching when doing A/B testing.&lt;/p&gt;&#xA;&lt;p&gt;A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and&#xA;comparing the users&amp;rsquo; behaviour to determine which version performs better.&lt;/p&gt;&#xA;&lt;p&gt;Usually, a user is randomly assigned a group (A or B) when first visiting the site implementing&#xA;A/B testing and sticks to this group. The value of the group is stored in a persistent cookie.&lt;/p&gt;</description>
+      <guid>https://svground.fr/blog/posts/ab-test-with-plug-http-cache/</guid>
+      <description>&lt;p&gt;In the previous &lt;a href=&#34;https://svground.fr/blog/posts/introducing-http-cache/&#34;&gt;article&lt;/a&gt;, we discussed how to setup&#xA;&lt;a href=&#34;https://hex.pm/packages/plug_http_cache&#34;&gt;&lt;code&gt;plug_http_cache&lt;/code&gt;&lt;/a&gt; to cache Phoenix&amp;rsquo;s response.&lt;/p&gt;&#xA;&lt;p&gt;In this article, we&amp;rsquo;ll take a look at the specific case of caching when doing A/B testing.&lt;/p&gt;&#xA;&lt;p&gt;A/B testing consists in presenting 2 different versions of a page (page A and page B) to users and&#xA;comparing the users&amp;rsquo; behaviour to determine which version performs better.&lt;/p&gt;&#xA;&lt;p&gt;Usually, a user is randomly assigned a group (A or B) when first visiting the site implementing&#xA;A/B testing and sticks to this group. The value of the group is stored in a persistent cookie.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Introducing http_cache, a BEAM-native standard-compliant HTTP caching library</title>
-      <link>http://localhost:1313/blog/posts/introducing-http-cache/</link>
+      <link>https://svground.fr/blog/posts/introducing-http-cache/</link>
       <pubDate>Wed, 04 Oct 2023 12:35:32 +0200</pubDate>
-      <guid>http://localhost:1313/blog/posts/introducing-http-cache/</guid>
+      <guid>https://svground.fr/blog/posts/introducing-http-cache/</guid>
       <description>&lt;p&gt;One year ago I released the &lt;a href=&#34;https://github.com/tanguilp/http_cache&#34;&gt;&lt;code&gt;http_cache&lt;/code&gt;&lt;/a&gt; Erlang library&#xA;along with 2 Elixir libraries (&lt;a href=&#34;https://github.com/tanguilp/plug_http_cache&#34;&gt;&lt;code&gt;plug_http_cache&lt;/code&gt;&lt;/a&gt;&#xA;and &lt;a href=&#34;https://github.com/tanguilp/tesla_http_cache&#34;&gt;&lt;code&gt;tesla_http_cache&lt;/code&gt;&lt;/a&gt;) that make use of it.&lt;/p&gt;&#xA;&lt;p&gt;When I started writing these libs, I thought it would take a few weeks of work to have them&#xA;completed. HTTP caching is harder than I though, and it took way longer. Why, then, bothering writing&#xA;them when other HTTP caching systems already exist? In this blog post, I intend to explain my&#xA;motivation and show what features they support.&lt;/p&gt;</description>
     </item>
     <item>
       <title>About</title>
-      <link>http://localhost:1313/blog/about/</link>
+      <link>https://svground.fr/blog/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:1313/blog/about/</guid>
+      <guid>https://svground.fr/blog/about/</guid>
       <description>&lt;p&gt;Hi! I&amp;rsquo;m Tangui, a French developer living in Brittany.&lt;/p&gt;&#xA;&lt;p&gt;I&amp;rsquo;ve been programming with Elixir since 2018, and more recently in Erlang. Long live the BEAM!&lt;/p&gt;&#xA;&lt;p&gt;Check out my contributions to OSS on my &lt;a href=&#34;https://github.com/tanguilp/&#34;&gt;Github page&lt;/a&gt;.&lt;/p&gt;&#xA;&lt;p&gt;This blog is gracefully hosted on &lt;a href=&#34;https://svground.fr/&#34;&gt;SVGround&lt;/a&gt; by the former self who wrote&#xA;this tutorial 15 years ago.&lt;/p&gt;</description>
     </item>
   </channel>
